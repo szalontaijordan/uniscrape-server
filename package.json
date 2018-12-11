@@ -1,0 +1,36 @@
+{
+  "name": "uniscrape-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"node app.js\"",
+    "build": "npm run tsc",
+    "coverage": "npm run test-cov && npm run test-remap",
+    "postinstall": "npm run build",
+    "tslint": "tslint ./*.ts ./lib/*.ts",
+    "test": "echo \"No tests!\" && exit 1",
+    "tsc": "tsc --project tsconfig.json",
+    "tsc:w": "tsc -w",
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "@tsed/common": "^4.32.2",
+    "@tsed/core": "^4.32.2",
+    "typescript": "^3.2.2",
+    "tsc-watch": "^1.0.31"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "google-auth-library": "^2.0.1",
+    "jsdom": "^13.0.0",
+    "microdata-node": "^1.0.0",
+    "mongodb": "^3.1.10",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}
