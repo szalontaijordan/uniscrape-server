@@ -6,11 +6,12 @@ import { DatabaseService } from '../services/db.service';
 import { DOMService } from '../services/dom.service';
 
 import GoogleMiddleware from '../middlewares/google.middleware';
+import { PuppeteerService } from '../services/puppeteer.service';
 
 @Controller('/book')
 export class BookController {
 
-    constructor(private db: DatabaseService, private dom: DOMService) {
+    constructor(private db: DatabaseService, private dom: DOMService, private puppeteer: PuppeteerService) {
     }
 
     @Get('/sections')
@@ -26,30 +27,28 @@ export class BookController {
     }
 
     @Get('/search/depository/:searchTerm')
+    @Get('/search/depository/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
-    async getDepositorySearchResults(@PathParams('searchTerm') searchTerm: string, @Locals('userId') userId: string) {
+    async getDepositorySearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        // TODO: provide real implementation
-
-        return { books: [mockBookItem] };
+        const books = await this.dom.getDepositorySearch(searchTerm, page);
+        return { books };
     }
 
     @Get('/search/ebay/:searchTerm')
     @UseBefore(GoogleMiddleware)
     async getEbaySearchResults(@PathParams('searchTerm') searchTerm: string, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        // TODO: provide real implementation
-
-        return { books: [mockBookItem] };
+        const books = await this.puppeteer.getEbaySearch(searchTerm);
+        return { books };
     }
 
     @Get('/search/amazon/:searchTerm')
     @UseBefore(GoogleMiddleware)
     async getAmazonSearchResults(@PathParams('searchTerm') searchTerm: string, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        // TODO: provide real implementation
-
-        return { books: [mockBookItem] };
+        const books = await this.puppeteer.getAmazonSearch(searchTerm);
+        return { books };
     }
 
     @Get('/search/recent')

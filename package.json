@@ -18,11 +18,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/express": "^4.16.0",
     "@tsed/common": "^4.32.2",
     "@tsed/core": "^4.32.2",
-    "typescript": "^3.2.2",
-    "tsc-watch": "^1.0.31"
+    "@types/express": "^4.16.0",
+    "@types/puppeteer": "^1.11.1",
+    "tsc-watch": "^1.0.31",
+    "typescript": "^3.2.2"
   },
   "dependencies": {
     "express": "^4.16.4",
@@ -30,6 +31,7 @@
     "jsdom": "^13.0.0",
     "microdata-node": "^1.0.0",
     "mongodb": "^3.1.10",
+    "puppeteer": "^1.11.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2"
   }

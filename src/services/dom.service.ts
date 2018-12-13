@@ -7,7 +7,8 @@ import { BookItem } from '../models/book-item.model';
 @Service()
 export class DOMService implements OnInit {
     
-    private depoURL = 'https://www.bookdepository.com/';
+    private depoHomeURL = 'https://www.bookdepository.com/';
+    private depoSearchURL = 'https://www.bookdepository.com/search?searchTerm=#SEARCHTERM#&page=#PAGE#';
 
     constructor() {
     }
@@ -16,7 +17,7 @@ export class DOMService implements OnInit {
     }
 
     public async getDepositoryHomeSections(): Promise<Array<string>> {
-        const options = { url: this.depoURL, method: 'GET' };
+        const options = { url: this.depoHomeURL, method: 'GET' };
 
         const html = await request(options);
         const document = new JSDOM(html).window.document;
@@ -28,7 +29,7 @@ export class DOMService implements OnInit {
     }
 
     public async getDepositoryHomeBooksBySection(section: string): Promise<Array<BookItem>> {
-        const options = { url: this.depoURL, method: 'GET' };
+        const options = { url: this.depoHomeURL, method: 'GET' };
 
         const html = await request(options);
         const document = new JSDOM(html).window.document;
@@ -41,6 +42,24 @@ export class DOMService implements OnInit {
             .children[1]
             .lastElementChild
             .children;
+
+        return Array
+            .from(books)
+            .map(book => this.generateAdditionalMetadataFor(book))
+            .map(book => this.createBookItemFrom(microdata.toJson(book)));
+    }
+
+    public async getDepositorySearch(searchTerm: string, page: number = 1) {
+        const url = this.depoSearchURL
+            .replace('#SEARCHTERM#', encodeURIComponent(searchTerm))
+            .replace('#PAGE#', String(page));
+
+        const options = { url, method: 'GET' };
+
+        const html = await request(options);
+        const document = new JSDOM(html).window.document;
+
+        const books = document.getElementsByClassName('book-item');
 
         return Array
             .from(books)
@@ -78,5 +97,4 @@ export class DOMService implements OnInit {
 
         return bookItem;
     }
-
 }
