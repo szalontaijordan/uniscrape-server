@@ -1,6 +1,6 @@
 import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams,  } from '@tsed/common';
 
-import { mockBookItem, BookItem } from '../models/book-item.model';
+import { BookItem } from '../models/book-item.model';
 
 import { DatabaseService } from '../services/db.service';
 import { DOMService } from '../services/dom.service';
