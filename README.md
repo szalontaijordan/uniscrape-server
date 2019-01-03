@@ -2,6 +2,30 @@
 
 This is the backend of the Uniscrape application, implemented in Express.
 
+## Install & Run in dev mode
+
+Make sure, you have the a recent version of Node.js and NPM.
+
+First, install the dependencies:
+
+```
+$ npm install
+```
+
+Then run in dev mode:
+
+```
+$ npm run dev
+```
+
+This is only an API, so you'll have to use something like Postman, Curl to make call againts it.
+
+Example call:
+
+```
+$ curl "http://localhost:8080/api/book/depository/sections"
+```
+
 ## Book API in UniScrape: `/api/book`
 
 Where not otherwise stated a `DepositoryBookItem` entity looks like the following:
