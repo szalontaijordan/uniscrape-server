@@ -1,6 +1,6 @@
 import { Service, OnInit } from '@tsed/common';
 import * as mongodb from 'mongodb';
-import { config } from '../../config/vars';
+import { config } from '../../../config/vars';
 
 @Service()
 export class DatabaseService implements OnInit {

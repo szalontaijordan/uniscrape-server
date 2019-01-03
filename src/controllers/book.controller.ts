@@ -1,64 +1,74 @@
 import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams,  } from '@tsed/common';
 
-import { BookItem } from '../models/book-item.model';
+import { DepositoryBookItem } from '../models/depository-book-item.model';
 
-import { DatabaseService } from '../services/db.service';
-import { DOMService } from '../services/dom.service';
+import { AmazonHeadlessService } from '../services/amazon/amazon.headless.service';
+import { DatabaseService } from '../services/db/db.service';
+import { DepositoryDOMService } from '../services/depository/depository.dom.service';
+import { EbayApiService } from '../services/ebay/ebay.api.service';
 
 import GoogleMiddleware from '../middlewares/google.middleware';
-import { PuppeteerService } from '../services/puppeteer.service';
 
 @Controller('/book')
 export class BookController {
 
-    constructor(private db: DatabaseService, private dom: DOMService, private puppeteer: PuppeteerService) {
+    constructor(private db: DatabaseService,
+                private depoDom: DepositoryDOMService,
+                private ebayApi: EbayApiService,
+                private amazonHeadless: AmazonHeadlessService) {
     }
 
-    @Get('/sections')
+    @Get('/depository/sections')
     async getSections() {
-        const sections = await this.dom.getDepositoryHomeSections();
+        const sections = await this.depoDom.getDepositoryHomeSections();
+        
         return { sections };
     }
 
-    @Get('/section/:sectionName')
+    @Get('/depository/section/:sectionName')
     async getBookItemsOfSection(@PathParams('sectionName') sectionName: string) {
-        const books = await this.dom.getDepositoryHomeBooksBySection(sectionName);
+        const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
+        
         return { books };
     }
 
-    @Get('/search/depository/:searchTerm')
-    @Get('/search/depository/:searchTerm/:page')
+    @Get('/depository/search/:searchTerm')
+    @Get('/depository/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
     async getDepositorySearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        const books = await this.dom.getDepositorySearch(searchTerm, page);
+        
+        const books = await this.depoDom.getDepositorySearch(searchTerm, page);
+        
         return { books };
     }
 
-    @Get('/search/ebay/:searchTerm')
+    @Post('/depository/auth')
     @UseBefore(GoogleMiddleware)
-    async getEbaySearchResults(@PathParams('searchTerm') searchTerm: string, @Locals('userId') userId: string) {
+    async postAuthenticateWithDepository(@Locals('userId') userId: string) {
+        return { auth: 'TODO' };
+    }
+
+    @Get('/ebay/search/:searchTerm')
+    @Get('/ebay/search/:searchTerm/:page')
+    @UseBefore(GoogleMiddleware)
+    async getEbaySearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        const books = await this.puppeteer.getEbaySearch(searchTerm);
+        
+        const books = await this.ebayApi.getEbaySearch(searchTerm, page);
+        
         return { books };
     }
 
-    @Get('/search/amazon/:searchTerm')
+    @Get('/amazon/search/:searchTerm')
+    @Get('/amazon/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
-    async getAmazonSearchResults(@PathParams('searchTerm') searchTerm: string, @Locals('userId') userId: string) {
+    async getAmazonSearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
         this.sendSearchStatistics(searchTerm, userId);
-        const books = await this.puppeteer.getAmazonSearch(searchTerm);
+
+        const books = await this.amazonHeadless.getAmazonSearch(searchTerm);
+
         return { books };
-    }
-
-    @Get('/search/recent')
-    @UseBefore(GoogleMiddleware)
-    async getRecentSearches(@Locals('userId') userId) {
-        const stats = await this.db.getSearchStatistics();
-        const currentStats = await stats.find({ userId }).toArray();
-        const recentSearches = currentStats[0].searchArray;
-
-        return { recentSearches };
     }
 
     @Get('/wishlist/internal')
@@ -73,7 +83,7 @@ export class BookController {
 
     @Post('/wishlist/internal')
     @UseBefore(GoogleMiddleware)
-    async postBookItemToInternalWishlist(@Required() @BodyParams('bookItem') bookItem: BookItem, @Locals('userId') userId: string) {
+    async postBookItemToInternalWishlist(@Required() @BodyParams('bookItem') bookItem: DepositoryBookItem, @Locals('userId') userId: string) {
         const internalWishlist = await this.db.getInternalWishlist();
 
         await internalWishlist.insertOne({
@@ -82,6 +92,16 @@ export class BookController {
         });
 
         return bookItem;
+    }
+
+    @Get('/all/recent')
+    @UseBefore(GoogleMiddleware)
+    async getRecentSearches(@Locals('userId') userId) {
+        const stats = await this.db.getSearchStatistics();
+        const currentStats = await stats.find({ userId }).toArray();
+        const recentSearches = currentStats[0].searchArray;
+
+        return { recentSearches };
     }
 
     private async sendSearchStatistics(searchTerm: string, userId: string) {

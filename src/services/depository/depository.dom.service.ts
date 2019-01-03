@@ -1,13 +1,13 @@
 import { Service, OnInit } from '@tsed/common';
 import fetch from 'node-fetch';
 import { JSDOM } from 'jsdom';
-import { BookItem } from '../models/book-item.model';
+import { DepositoryBookItem } from '../../models/depository-book-item.model';
 
 import * as microdata from 'microdata-node';
 import * as _ from 'lodash';
 
 @Service()
-export class DOMService implements OnInit {
+export class DepositoryDOMService implements OnInit {
     
     private depoHomeURL = 'https://www.bookdepository.com/';
     private depoSearchURL = 'https://www.bookdepository.com/search?searchTerm=#SEARCHTERM#&page=#PAGE#';
@@ -28,12 +28,12 @@ export class DOMService implements OnInit {
         return titles;
     }
 
-    public async getDepositoryHomeBooksBySection(section: string): Promise<Array<BookItem>> {
+    public async getDepositoryHomeBooksBySection(section: string): Promise<Array<DepositoryBookItem>> {
         const html = await fetch(this.depoHomeURL);
         const document = new JSDOM(await html.text()).window.document;
 
-        const query = `[data-title="${section}"]`;
-        const books = document.querySelector(query)
+        const books = document
+            .querySelector(`[data-title="${section}"]`)
             .parentElement
             .parentElement
             .getElementsByClassName('book-item');
@@ -67,30 +67,35 @@ export class DOMService implements OnInit {
         return dom.serialize();
     }
 
-    private createBookItemFrom(response: any): BookItem {
+    private createBookItemFrom(response: any): DepositoryBookItem {
         const props = response.items[0].properties;
-        
-        const bookItem: BookItem = {
+        const currentPriceProp = props.price[0].replace(/\s/g, '').match(/[0-9]+/g);
+
+        const bookItem: DepositoryBookItem = {
             published: new Date(props.datePublished[0]),
             title: props.name[0],
             ISBN: props.isbn[0],
-            currentPrice: Number(props.price[0].replace(/\s/g, '').match(/[0-9]+/g)[0]),
+            currentPrice: currentPriceProp ? Number(currentPriceProp) : -1,
             image: props.image[0],
-            author: {
-                name: props.author[0].properties.name[0],
-                url: props.author[0].properties.url[0],
-            }
+            author: null
         }
 
+        if (props.author) {
+            bookItem.author = {
+                name: props.author[0].properties.name[0],
+                url: props.author[0].properties.url[0],
+            }    
+        }
+        
         return bookItem;
     }
 
-    private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<BookItem> {
+    private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<DepositoryBookItem> {
         return _.map(_.toArray(books), (book: Element) => {
             const enrichedBook = this.generateAdditionalMetadataFor(book);
-            const bookItems = this.createBookItemFrom(microdata.toJson(enrichedBook));
-// TODO: FIX INTERNAL ERROR PLS
-            return bookItems;
+            const bookItem = this.createBookItemFrom(microdata.toJson(enrichedBook));
+
+            return bookItem;
         });
     }
 }

@@ -4,7 +4,7 @@ This is the backend of the Uniscrape application, implemented in Express.
 
 ## Book API in UniScrape: `/api/book`
 
-Wwhere not otherwise stated a `BookItem` entity looks like the following:
+Wwhere not otherwise stated a `DepositoryBookItem` entity looks like the following:
 
 ```
 {
@@ -22,8 +22,9 @@ Wwhere not otherwise stated a `BookItem` entity looks like the following:
 
 The `EbayBookItem` and the `AmazonBookItem` entites are not defined yet.
 
-### `GET /sections`
+### `/depository`
 
+#### `GET /sections`
 Returns the title available sections on the home page of BookDepository.
 
 
@@ -33,39 +34,47 @@ Returns the title available sections on the home page of BookDepository.
 }
 ```
 
-### `GET /section/:sectionName`
+#### `GET /section/:sectionName`
 
 The `:sectionName` param should be the one of the names that `/sections` returns. If not this will resolve as a bad request.
 
-Returns an array of `BookItem`s of the section.
+Returns an array of `DepositoryBookItem`s of the section.
 
 ```
 {
-    books: Array<BookItem>
+    books: Array<DepositoryBookItem>
 }
 ```
 
-### `GET /search/depository/:searchTerm`
+#### `GET /search/:searchTerm`
+#### `GET /search/:searchTerm/:page`
+
+The page param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
 
-Returns the results of a search on BookDepository, an array of `BookItem`s.
+Returns the results of a search on BookDepository, an array of `DepositoryBookItem`s.
 
 ```
 {
-    books: Array<BookItem>
+    books: Array<DepositoryBookItem>
 }
 ```
 
-#### Filtering
+#### `POST /auth`
 
 TODO
 
-### `GET /search/ebay/:searchTerm`
+### `/ebay`
+
+#### `/search/:searchTerm`
+#### `/search/:searchTerm/:page`
+
+The page param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
 
-Returns the results of a search on Ebay, an array of `BookItem`s.
+Returns the results of a search on Ebay, an array of `EbayBookItem`s.
 
 ```
 {
@@ -73,22 +82,19 @@ Returns the results of a search on Ebay, an array of `BookItem`s.
 }
 ```
 
-#### Filtering
+### `/amazon/`
 
-TODO
+#### `/search/:searchTerm`
+#### `/search/:searchTerm/:page`
 
-### `GET /search/amazon/:searchTerm`
+The page param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
 
-Returns the results of a search on the Amazon site, an array of `BookItem`s.
+Returns the results of a search on the Amazon site, an array of `AmazonBookItem`s.
 
 ```
 {
     books: Array<AmazonBookItem>
 }
 ```
-
-#### Filtering
-
-TODO

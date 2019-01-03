@@ -2,6 +2,19 @@ export const config = {
     db: {
         testURI: `mongodb://admin1234:admin1234@ds131601.mlab.com:31601/uniscrape_test`
     },
+    ebay: {
+        prodAppId: 'JordnSza-UniScrap-PRD-c60a78903-98d69895',
+        sandboxAppId: 'JordnSza-UniScrap-SBX-b60c321e5-6269a421',
+        findingApiSandboxUrl: 'http://svcs.sandbox.ebay.com/services/search/FindingService/v1',
+        findingApiProdUrl: 'http://svcs.ebay.com/services/search/FindingService/v1',
+        query: '?OPERATION-NAME=findItemsByKeywords' +
+            '&SERVICE-VERSION=1.0.0' +
+            '&SECURITY-APPNAME=#APPID#' +
+            '&RESPONSE-DATA-FORMAT=JSON' +
+            '&REST-PAYLOAD' +
+            '&keywords=#KEYWORDS#' +
+            '&paginationInput.pageNumber=#PAGE#'
+    },
     google: {
         "web": {
             "client_id": "695322178173-7c01bp19lh7gjksaskq93i4bs011qtt4.apps.googleusercontent.com",

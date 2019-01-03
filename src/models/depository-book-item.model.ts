@@ -1,18 +1,18 @@
-export interface BookItem {
+export interface DepositoryBookItem {
     ISBN: string;
     title: string;
     published: Date;
-    author: BookItemAuthor;
+    author: DepositoryBookItemAuthor;
     currentPrice: number;
     image: string;
 }
 
-export interface BookItemAuthor {
+export interface DepositoryBookItemAuthor {
     name: string;
     url: string;
 }
 
-export const mockBookItem = {
+export const mockDepositoryBookItem = {
     ISBN: 'ISBN000000',
     title: 'Mock Book Item',
     published: new Date(),
