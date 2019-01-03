@@ -49,9 +49,11 @@ Returns an array of `DepositoryBookItem`s of the section.
 #### `GET /search/:searchTerm`
 #### `GET /search/:searchTerm/:page`
 
-The page param specifies the page to be returned. (1, ...)
+The `:page` param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
 
 Returns the results of a search on BookDepository, an array of `DepositoryBookItem`s.
 
@@ -63,6 +65,8 @@ Returns the results of a search on BookDepository, an array of `DepositoryBookIt
 
 #### `POST /auth`
 
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
 TODO
 
 ### `/ebay`
@@ -70,7 +74,9 @@ TODO
 #### `/search/:searchTerm`
 #### `/search/:searchTerm/:page`
 
-The page param specifies the page to be returned. (1, ...)
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+The `:page` param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
 
@@ -82,12 +88,14 @@ Returns the results of a search on Ebay, an array of `EbayBookItem`s.
 }
 ```
 
-### `/amazon/`
+### `/amazon`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
 
 #### `/search/:searchTerm`
 #### `/search/:searchTerm/:page`
 
-The page param specifies the page to be returned. (1, ...)
+The `:page` param specifies the page to be returned. (1, ...)
 
 As a side effect, the searchTerm will be stored in the database among the last 10 searches, and will be suggested (this will be shared among all searches).
 
