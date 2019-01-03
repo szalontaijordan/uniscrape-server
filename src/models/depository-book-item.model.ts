@@ -7,6 +7,14 @@ export interface DepositoryBookItem {
     image: string;
 }
 
+export interface DepositoryWishlistItem {
+    title: string;
+    author: DepositoryBookItemAuthor;
+    currentPrice: number;
+    image: string;
+    url: string;
+}
+
 export interface DepositoryBookItemAuthor {
     name: string;
     url: string;

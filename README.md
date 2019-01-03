@@ -4,7 +4,7 @@ This is the backend of the Uniscrape application, implemented in Express.
 
 ## Book API in UniScrape: `/api/book`
 
-Wwhere not otherwise stated a `DepositoryBookItem` entity looks like the following:
+Where not otherwise stated a `DepositoryBookItem` entity looks like the following:
 
 ```
 {
@@ -17,6 +17,19 @@ Wwhere not otherwise stated a `DepositoryBookItem` entity looks like the followi
     },
     currentPrice: number,
     image: string
+}
+```
+
+
+... and `DepositoryWishlistItem` looks like the following:
+
+```
+{
+    title: string,
+    author: DepositoryBookItemAuthor,
+    currentPrice: number,
+    image: string,
+    url: string
 }
 ```
 
@@ -63,11 +76,37 @@ Returns the results of a search on BookDepository, an array of `DepositoryBookIt
 }
 ```
 
-#### `POST /auth`
+#### `POST /auth/login`
 
 A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
 
-TODO
+The request body should contain the following JSON:
+
+```
+{
+    "email": "<your depository email>",
+    "password": "<your depository password>"
+}
+
+```
+
+#### `POST /auth/logout`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+#### `GET /wishlist`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+You must first log in with `/auth/login` to access the wishlist.
+
+Returns the wishlist on The Bookdepository, an array of `DepositoryWishlistItem`s.
+
+```
+{
+    books: Array<DepositoryWishlistItem>
+}
+```
 
 ### `/ebay`
 
@@ -104,5 +143,43 @@ Returns the results of a search on the Amazon site, an array of `AmazonBookItem`
 ```
 {
     books: Array<AmazonBookItem>
+}
+```
+
+### `/internal`
+
+#### `GET /wishlist`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+Returns a list of `DepositoryBookItem`s, on your internal wishlist.
+
+```
+{
+    books: Array<DepositoryBookItem>
+}
+```
+
+#### `POST /wishlist`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+Adds a new `DepositoryBookItem` to your internal wishlist.
+
+The request body should contain the `DepositoryBookItem` to add.
+
+Returns the newly added item.
+
+### `/all`
+
+#### `/recent`
+
+A header must be specified with the request: `Authorization: Bearer <Google Auth Token>`
+
+Returns a list of queries you entered in the different platforms (Amazon, Ebay, Bookdepository)
+
+```
+{
+    recentSearches: Array<string>
 }
 ```

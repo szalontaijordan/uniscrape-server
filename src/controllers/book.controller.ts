@@ -1,10 +1,11 @@
-import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams,  } from '@tsed/common';
+import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams, Response } from '@tsed/common';
 
 import { DepositoryBookItem } from '../models/depository-book-item.model';
 
 import { AmazonHeadlessService } from '../services/amazon/amazon.headless.service';
 import { DatabaseService } from '../services/db/db.service';
 import { DepositoryDOMService } from '../services/depository/depository.dom.service';
+import { DepositoryHeadlessService } from '../services/depository/depository.headless.service';
 import { EbayApiService } from '../services/ebay/ebay.api.service';
 
 import GoogleMiddleware from '../middlewares/google.middleware';
@@ -14,6 +15,7 @@ export class BookController {
 
     constructor(private db: DatabaseService,
                 private depoDom: DepositoryDOMService,
+                private depoHeadless: DepositoryHeadlessService,
                 private ebayApi: EbayApiService,
                 private amazonHeadless: AmazonHeadlessService) {
     }
@@ -43,11 +45,43 @@ export class BookController {
         return { books };
     }
 
-    @Post('/depository/auth')
+    @Post('/depository/auth/login')
     @UseBefore(GoogleMiddleware)
-    async postAuthenticateWithDepository(@Locals('userId') userId: string) {
-        return { auth: 'TODO' };
+    async postLoginToDepository(@Required() @BodyParams('email') email: string, @Required() @BodyParams('password') password: string, @Locals('userId') userId: string, @Response() res) {
+        try {
+            const success = await this.depoHeadless.login(email, password, userId);
+            return { auth: success };
+        } catch (e) {
+            res.status(403);
+            return { auth: e.message };
+        }
     }
+
+    @Post('/depository/auth/logout')
+    @UseBefore(GoogleMiddleware)
+    async postLogoutFromDepository(@Locals('userId') userId: string, @Response() res) {
+        try {
+            const success = await this.depoHeadless.logout(userId);
+            return { auth: success };
+        } catch (e) {
+            res.status(403);
+            return { auth: e.message };
+        }
+    }
+
+
+    @Get('/depository/wishlist')
+    @UseBefore(GoogleMiddleware)
+    async getDepositoryWishlist(@Locals('userId') userId: string, @Response() res) {
+        try {
+            const books = await this.depoHeadless.getWishlistItems(userId);
+            return { books };
+        } catch (e) {
+            res.status(401);
+            return { books: [] };
+        }
+    }
+
 
     @Get('/ebay/search/:searchTerm')
     @Get('/ebay/search/:searchTerm/:page')
@@ -71,7 +105,7 @@ export class BookController {
         return { books };
     }
 
-    @Get('/wishlist/internal')
+    @Get('/internal/wishlist')
     @UseBefore(GoogleMiddleware)
     async getBookItemsOnInternalWishlist(@Locals('userId') userId: string) {
         const internalWishlist = await this.db.getInternalWishlist();
@@ -81,7 +115,7 @@ export class BookController {
         return { books };
     }
 
-    @Post('/wishlist/internal')
+    @Post('/internal/wishlist')
     @UseBefore(GoogleMiddleware)
     async postBookItemToInternalWishlist(@Required() @BodyParams('bookItem') bookItem: DepositoryBookItem, @Locals('userId') userId: string) {
         const internalWishlist = await this.db.getInternalWishlist();
