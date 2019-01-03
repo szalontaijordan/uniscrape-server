@@ -1,8 +1,10 @@
 import { Service, OnInit } from '@tsed/common';
-import * as request from 'request-promise';
+import fetch from 'node-fetch';
 import { JSDOM } from 'jsdom';
-import * as microdata from 'microdata-node';
 import { BookItem } from '../models/book-item.model';
+
+import * as microdata from 'microdata-node';
+import * as _ from 'lodash';
 
 @Service()
 export class DOMService implements OnInit {
@@ -17,10 +19,8 @@ export class DOMService implements OnInit {
     }
 
     public async getDepositoryHomeSections(): Promise<Array<string>> {
-        const options = { url: this.depoHomeURL, method: 'GET' };
-
-        const html = await request(options);
-        const document = new JSDOM(html).window.document;
+        const html = await fetch(this.depoHomeURL);
+        const document = new JSDOM(await html.text()).window.document;
         
         const query = '.block-wrap:not([class*="no"]):not([class*="side"]):not([class*="one"]) h2';
         const titles = Array.from(document.querySelectorAll(query)).map(h2 => h2['textContent']);
@@ -29,24 +29,16 @@ export class DOMService implements OnInit {
     }
 
     public async getDepositoryHomeBooksBySection(section: string): Promise<Array<BookItem>> {
-        const options = { url: this.depoHomeURL, method: 'GET' };
-
-        const html = await request(options);
-        const document = new JSDOM(html).window.document;
+        const html = await fetch(this.depoHomeURL);
+        const document = new JSDOM(await html.text()).window.document;
 
         const query = `[data-title="${section}"]`;
         const books = document.querySelector(query)
             .parentElement
             .parentElement
-            .lastElementChild
-            .children[1]
-            .lastElementChild
-            .children;
+            .getElementsByClassName('book-item');
 
-        return Array
-            .from(books)
-            .map(book => this.generateAdditionalMetadataFor(book))
-            .map(book => this.createBookItemFrom(microdata.toJson(book)));
+        return this.mapElementsToBookItems(books);
     }
 
     public async getDepositorySearch(searchTerm: string, page: number = 1) {
@@ -54,21 +46,16 @@ export class DOMService implements OnInit {
             .replace('#SEARCHTERM#', encodeURIComponent(searchTerm))
             .replace('#PAGE#', String(page));
 
-        const options = { url, method: 'GET' };
-
-        const html = await request(options);
-        const document = new JSDOM(html).window.document;
+        const html = await fetch(url);
+        const document = new JSDOM(await html.text()).window.document;
 
         const books = document.getElementsByClassName('book-item');
 
-        return Array
-            .from(books)
-            .map(book => this.generateAdditionalMetadataFor(book))
-            .map(book => this.createBookItemFrom(microdata.toJson(book)));
+        return this.mapElementsToBookItems(books);
     }
 
-    private generateAdditionalMetadataFor(book: any): string {
-        const dom = new JSDOM(book['outerHTML']);
+    private generateAdditionalMetadataFor(book: Element): string {
+        const dom = new JSDOM(book.outerHTML);
         const image = dom.window.document.querySelector('.item-img img');
         const price = dom.window.document.querySelector('.price-wrap');
         
@@ -96,5 +83,14 @@ export class DOMService implements OnInit {
         }
 
         return bookItem;
+    }
+
+    private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<BookItem> {
+        return _.map(_.toArray(books), (book: Element) => {
+            const enrichedBook = this.generateAdditionalMetadataFor(book);
+            const bookItems = this.createBookItemFrom(microdata.toJson(enrichedBook));
+// TODO: FIX INTERNAL ERROR PLS
+            return bookItems;
+        });
     }
 }

@@ -12,7 +12,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
     }
     
     public $onInit() {
-        puppeteer.launch().then(browser => this.browser = browser).catch(err => console.log(err.message));
+        puppeteer.launch({ headless: false }).then(browser => this.browser = browser).catch(err => console.log(err.message));
     }
 
     public $onDestroy() {
