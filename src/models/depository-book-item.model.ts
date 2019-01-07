@@ -2,8 +2,8 @@ export interface DepositoryBookItem {
     ISBN: string;
     title: string;
     published: Date;
-    author: DepositoryBookItemAuthor;
-    currentPrice: number;
+    author?: DepositoryBookItemAuthor;
+    currentPrice?: number;
     image: string;
 }
 

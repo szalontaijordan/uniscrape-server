@@ -57,27 +57,38 @@ export class DepositoryDOMService implements OnInit {
     private generateAdditionalMetadataFor(book: Element): string {
         const dom = new JSDOM(book.outerHTML);
         const image = dom.window.document.querySelector('.item-img img');
-        const price = dom.window.document.querySelector('.price-wrap');
+        const price = dom.window.document.querySelector('.price');
         
-        image.setAttribute('itemprop', 'image');
-        image.setAttribute('src', image.getAttribute('data-lazy'));
-
-        price.setAttribute('itemprop', 'price');
+        if (image) {
+            image.setAttribute('itemprop', 'image');
+            image.setAttribute('src', image.getAttribute('data-lazy'));
+        }
+        
+        if (price) {
+            price.setAttribute('itemprop', 'price');
+        }
 
         return dom.serialize();
     }
 
     private createBookItemFrom(response: any): DepositoryBookItem {
         const props = response.items[0].properties;
-        const currentPriceProp = props.price[0].replace(/\s/g, '').match(/[0-9]+/g);
 
         const bookItem: DepositoryBookItem = {
             published: new Date(props.datePublished[0]),
             title: props.name[0],
             ISBN: props.isbn[0],
-            currentPrice: currentPriceProp ? Number(currentPriceProp) : -1,
             image: props.image[0],
+            currentPrice: -1,
             author: null
+        }
+
+        if (props.price) {
+            const pricesArray = props.price[0].replace(/\s/g, '').match(/[0-9]+/g);
+            
+            if (pricesArray) {
+                bookItem.currentPrice = Number(pricesArray[0]);
+            }
         }
 
         if (props.author) {
