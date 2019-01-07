@@ -52,6 +52,7 @@ export class DepositoryHeadlessService implements OnInit {
 
         if (this.loginPage.url().indexOf('wishlist') === -1) {
             await this.loginPage.close();
+            this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
             throw new Error('Invalid credentials');
         }
         
