@@ -75,7 +75,7 @@ export class DepositoryDOMService implements OnInit {
         const props = response.items[0].properties;
 
         const bookItem: DepositoryBookItem = {
-            published: new Date(props.datePublished[0]),
+            published: new Date(props.datePublished[0]).toJSON(),
             title: props.name[0],
             ISBN: props.isbn[0],
             image: props.image[0],

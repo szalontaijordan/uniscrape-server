@@ -1,7 +1,7 @@
 export interface DepositoryBookItem {
     ISBN: string;
     title: string;
-    published: Date;
+    published: string;
     author?: DepositoryBookItemAuthor;
     currentPrice?: number;
     image: string;
@@ -23,7 +23,7 @@ export interface DepositoryBookItemAuthor {
 export const mockDepositoryBookItem = {
     ISBN: 'ISBN000000',
     title: 'Mock Book Item',
-    published: new Date(),
+    published: new Date().toJSON,
     author: {
         name: 'Mock János',
         url: 'javascript:void(0)'
