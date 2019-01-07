@@ -138,6 +138,12 @@ export class BookController {
         return { recentSearches };
     }
 
+    @Get('/all/auth')
+    @UseBefore(GoogleMiddleware)
+    async getAuth(@Locals('userId') userId) {
+        return { message: 'true' };
+    }
+
     private async sendSearchStatistics(searchTerm: string, userId: string) {
         const stats = await this.db.getSearchStatistics();
         const currentStats = await stats.find({ userId }).toArray();

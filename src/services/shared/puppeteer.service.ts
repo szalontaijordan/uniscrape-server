@@ -10,7 +10,12 @@ export class PuppeteerService implements OnInit, OnDestroy {
     }
     
     public $onInit() {
-        puppeteer.launch({ headless: false }).then(browser => this.browser = browser).catch(err => console.log(err.message));
+        puppeteer.launch({ headless: true })
+            .then(browser => {
+                this.browser = browser;
+                console.log('Headless browser started ...');
+            })
+            .catch(err => console.log(err.message));
     }
 
     public $onDestroy() {
@@ -39,6 +44,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
 
     public async createIncognitoWindow(id: string, url: string): Promise<{ id: string, page: puppeteer.Page }> {
         const context = await this.browser.createIncognitoBrowserContext();
+        console.log('Created Incognito window with id ', id, '...');
         const page = await context.newPage();
 
         page.on('console', msg => console.log('PAGE LOG:', msg.text()));
