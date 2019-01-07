@@ -1,6 +1,6 @@
 import * as Path from 'path';
 import * as bodyParser from 'body-parser';
-
+import * as express from 'express';
 import { ServerLoader, ServerSettings } from '@tsed/common';
 
 @ServerSettings({
@@ -8,7 +8,9 @@ import { ServerLoader, ServerSettings } from '@tsed/common';
     acceptMimes: ['application/json'],
     mount: {
         '/api': `${Path.resolve(__dirname)}/controllers/*.js`
-    }
+    },
+    port: process.env.PORT || 8080,
+    httpsPort: process.env.PORT || 8000,
 })
 export class Server extends ServerLoader {
 
@@ -22,6 +24,14 @@ export class Server extends ServerLoader {
             
                 if (req.method === 'OPTIONS') {
                     res.sendStatus(200);
+                } else {
+                    next();
+                }
+            })
+            .use(express.static(Path.join(__dirname, '..', '/public')))
+            .use((req, res, next) => {
+                if (!(req.originalUrl.indexOf('/api') === 0)) {
+                    res.sendfile(Path.join(__dirname, '..', '/public/index.html'));
                 } else {
                     next();
                 }
