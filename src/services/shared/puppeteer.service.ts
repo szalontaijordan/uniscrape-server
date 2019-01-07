@@ -37,7 +37,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
         const page = await this.openPage(url, ...children);
         const result = await page.evaluate(evaluateFn);
 
-        page.close();
+        //page.close();
 
         return result;
     }

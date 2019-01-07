@@ -32,8 +32,8 @@ export class AmazonHeadlessService implements OnInit {
             
                     const title = data[0].getElementsByTagName('h2')[0]['innerText'];
                     const url = data[0].getElementsByTagName('a')[0].href;
-                    const category = data[3]['innerText'];
-                    const price = data[4]['innerText'].split('\n')[0];
+                    const category = data[4] ? data[3]['innerText'] : data[2]['innerText'];
+                    const price = data[4] ? data[4]['innerText'].split('\n')[0] : data[3]['innerText'].split('\n')[0];
                     const image = result.getElementsByClassName('s-access-image')[0].getAttribute('src');
             
                     return { title, url, category, price, image };
