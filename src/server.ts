@@ -2,6 +2,7 @@ import * as Path from 'path';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import { ServerLoader, ServerSettings } from '@tsed/common';
+import { GlobalErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
 
 @ServerSettings({
     rootDir: Path.resolve(__dirname),
@@ -36,6 +37,10 @@ export class Server extends ServerLoader {
                     next();
                 }
             });
+    }
+
+    $afterRoutesInit() {
+        this.use(GlobalErrorHandlerMiddleware);
     }
 
     public $onReady() {

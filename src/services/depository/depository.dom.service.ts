@@ -5,6 +5,7 @@ import { DepositoryBookItem } from '../../models/depository-book-item.model';
 
 import * as microdata from 'microdata-node';
 import * as _ from 'lodash';
+import { BookDepositoryDOMChangedException } from '../../models/exceptions/book.exceptions';
 
 @Service()
 export class DepositoryDOMService implements OnInit {
@@ -22,10 +23,14 @@ export class DepositoryDOMService implements OnInit {
         const html = await fetch(this.depoHomeURL);
         const document = new JSDOM(await html.text()).window.document;
         
-        const query = '.block-wrap:not([class*="no"]):not([class*="side"]):not([class*="one"]) h2';
-        const titles = Array.from(document.querySelectorAll(query)).map(h2 => h2['textContent']);
+        try {
+            const query = '.block-wrap:not([class*="no"]):not([class*="side"]):not([class*="one"]) h2';
+            const titles = _.map(_.toArray(document.querySelectorAll(query)), h2 => h2['textContent']);
         
-        return titles;
+            return titles;
+        } catch (e) {
+            throw new BookDepositoryDOMChangedException('Failed to scrape sections with the current CSS selector.');
+        }
     }
 
     public async getDepositoryHomeBooksBySection(section: string): Promise<Array<DepositoryBookItem>> {
@@ -41,7 +46,7 @@ export class DepositoryDOMService implements OnInit {
         return this.mapElementsToBookItems(books);
     }
 
-    public async getDepositorySearch(searchTerm: string, page: number = 1) {
+    public async getDepositorySearch(searchTerm: string, page: number = 1): Promise<Array<DepositoryBookItem>> {
         const url = this.depoSearchURL
             .replace('#SEARCHTERM#', encodeURIComponent(searchTerm))
             .replace('#PAGE#', String(page));
@@ -102,6 +107,10 @@ export class DepositoryDOMService implements OnInit {
     }
 
     private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<DepositoryBookItem> {
+        if (!books.length) {
+            throw new BookDepositoryDOMChangedException('The list of the books scraped by the current selector is empty.');
+        }
+
         return _.map(_.toArray(books), (book: Element) => {
             const enrichedBook = this.generateAdditionalMetadataFor(book);
             const bookItem = this.createBookItemFrom(microdata.toJson(enrichedBook));

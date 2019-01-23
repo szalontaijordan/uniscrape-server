@@ -1,9 +1,11 @@
 import { Middleware, IMiddleware, Request, Response, Next } from '@tsed/common';
 import { OAuth2Client } from 'google-auth-library';
 import { config } from '../../config/vars';
+import { GoogleAuthErrorResponse, GoogleCommonErrorResponse } from '../models/error-responses/google.error-response';
+import { GoogleIdTokenInvalidException, GoogleTokenMissingException } from '../models/exceptions/google.exceptions';
 
 @Middleware()
-export default class GoogleMiddleware implements IMiddleware {
+export class GoogleMiddleware implements IMiddleware {
 
     constructor() {
     }
@@ -13,8 +15,14 @@ export default class GoogleMiddleware implements IMiddleware {
     }
 
     private async auth(@Request() req, @Response() res, @Next() next) {
+        const authHeader = req.get('Authorization');
+
+        if (!authHeader || authHeader.indexOf('Bearer') !== 0) {
+            throw new GoogleCommonErrorResponse(new GoogleTokenMissingException('You must provide a valid Google ID token'));
+        }
+
         try {
-            const token = req.get('Authorization').split('Bearer ')[1];
+            const token = authHeader.split('Bearer ')[1];
         
             const CLIENT_ID = config.google.web.client_id;
             const client = new OAuth2Client(token);
@@ -27,7 +35,7 @@ export default class GoogleMiddleware implements IMiddleware {
             res.locals.userId = ticket.getUserId();
             next();
         } catch (err) {
-            res.status(401).send({ message: 'The provided Google Auth Token is invalid.'});
+            throw new GoogleAuthErrorResponse(new GoogleIdTokenInvalidException('The provided Google ID Token is invalid.'));
         }
     }
 }

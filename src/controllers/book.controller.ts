@@ -8,7 +8,8 @@ import { DepositoryDOMService } from '../services/depository/depository.dom.serv
 import { DepositoryHeadlessService } from '../services/depository/depository.headless.service';
 import { EbayApiService } from '../services/ebay/ebay.api.service';
 
-import GoogleMiddleware from '../middlewares/google.middleware';
+import { GoogleMiddleware } from '../middlewares/google.middleware';
+import { DepositoryErrorResponse } from '../models/error-responses/depository.error-response';
 
 @Controller('/book')
 export class BookController {
@@ -21,28 +22,37 @@ export class BookController {
     }
 
     @Get('/depository/sections')
-    async getSections() {
-        const sections = await this.depoDom.getDepositoryHomeSections();
-        
-        return { sections };
+    async getSections(): Promise<{ sections: Array<string> }> {
+        try {
+            const sections = await this.depoDom.getDepositoryHomeSections();
+            return { sections };
+        } catch (e) {
+            throw new DepositoryErrorResponse(e);
+        }
     }
 
     @Get('/depository/section/:sectionName')
-    async getBookItemsOfSection(@PathParams('sectionName') sectionName: string) {
-        const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
-        
-        return { books };
+    async getBookItemsOfSection(@PathParams('sectionName') sectionName: string): Promise<{ books: Array<DepositoryBookItem> }> {
+        try {
+            const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
+            return { books };
+        } catch (e) {
+            throw new DepositoryErrorResponse(e);
+        }
     }
 
     @Get('/depository/search/:searchTerm')
     @Get('/depository/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
     async getDepositorySearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
-        this.sendSearchStatistics(searchTerm, userId);
-        
-        const books = await this.depoDom.getDepositorySearch(searchTerm, page);
-        
-        return { books };
+        try {
+            const books = await this.depoDom.getDepositorySearch(searchTerm, page);
+            return { books };
+        } catch (e) {
+            throw new DepositoryErrorResponse(e);
+        } finally {
+            this.sendSearchStatistics(searchTerm, userId);   
+        }
     }
 
     @Post('/depository/auth/login')
@@ -52,8 +62,8 @@ export class BookController {
             const success = await this.depoHeadless.login(email, password, userId);
             return { auth: success };
         } catch (e) {
-            res.status(403);
-            return { auth: e.message };
+            // TODO: create Exception for auth "actions"
+            // throw new DepositoryErrorResponse(e);
         }
     }
 
