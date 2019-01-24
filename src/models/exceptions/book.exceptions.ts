@@ -7,5 +7,13 @@ export class BookDepositoryDOMChangedException extends CustomException {
     }
 }
 
+export class BookDepositoryAuthException extends CustomException {
+    
+    constructor(public message: string) {
+        super();
+    }
+}
+
 export type DepositroyException =
-    BookDepositoryDOMChangedException;
+    BookDepositoryDOMChangedException |
+    BookDepositoryAuthException;

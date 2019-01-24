@@ -9,7 +9,7 @@ import { DepositoryHeadlessService } from '../services/depository/depository.hea
 import { EbayApiService } from '../services/ebay/ebay.api.service';
 
 import { GoogleMiddleware } from '../middlewares/google.middleware';
-import { DepositoryErrorResponse } from '../models/error-responses/depository.error-response';
+import { DepositoryCommonErrorResponse, DepositoryAuthErrorResponse } from '../models/error-responses/depository.error-response';
 
 @Controller('/book')
 export class BookController {
@@ -27,7 +27,7 @@ export class BookController {
             const sections = await this.depoDom.getDepositoryHomeSections();
             return { sections };
         } catch (e) {
-            throw new DepositoryErrorResponse(e);
+            throw new DepositoryCommonErrorResponse(e);
         }
     }
 
@@ -37,7 +37,7 @@ export class BookController {
             const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
             return { books };
         } catch (e) {
-            throw new DepositoryErrorResponse(e);
+            throw new DepositoryCommonErrorResponse(e);
         }
     }
 
@@ -49,7 +49,7 @@ export class BookController {
             const books = await this.depoDom.getDepositorySearch(searchTerm, page);
             return { books };
         } catch (e) {
-            throw new DepositoryErrorResponse(e);
+            throw new DepositoryCommonErrorResponse(e);
         } finally {
             this.sendSearchStatistics(searchTerm, userId);   
         }
@@ -62,8 +62,7 @@ export class BookController {
             const success = await this.depoHeadless.login(email, password, userId);
             return { auth: success };
         } catch (e) {
-            // TODO: create Exception for auth "actions"
-            // throw new DepositoryErrorResponse(e);
+            throw new DepositoryAuthErrorResponse(e);
         }
     }
 
@@ -74,8 +73,7 @@ export class BookController {
             const success = await this.depoHeadless.logout(userId);
             return { auth: success };
         } catch (e) {
-            res.status(403);
-            return { auth: e.message };
+            throw new DepositoryAuthErrorResponse(e);
         }
     }
 
@@ -87,8 +85,7 @@ export class BookController {
             const books = await this.depoHeadless.getWishlistItems(userId);
             return { books };
         } catch (e) {
-            res.status(401);
-            return { books: [] };
+            throw new DepositoryAuthErrorResponse(e);
         }
     }
 

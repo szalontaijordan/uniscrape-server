@@ -10,7 +10,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
     }
     
     public $onInit() {
-        puppeteer.launch({ headless: true })
+        puppeteer.launch({ headless: false })
             .then(browser => {
                 this.browser = browser;
                 console.log('Headless browser started ...');

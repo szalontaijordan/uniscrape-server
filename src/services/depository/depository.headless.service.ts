@@ -5,6 +5,7 @@ import { DepositoryBookItem, DepositoryWishlistItem } from '../../models/deposit
 import * as puppeteer from 'puppeteer';
 import * as _ from 'lodash';
 import { PuppeteerService } from '../shared/puppeteer.service';
+import { BookDepositoryDOMChangedException, BookDepositoryAuthException } from '../../models/exceptions/book.exceptions';
 
 @Service()
 export class DepositoryHeadlessService implements OnInit {
@@ -25,45 +26,55 @@ export class DepositoryHeadlessService implements OnInit {
 
     public async login(email: string, password: string, userId: string): Promise<string> {
         if (this.browserContextPages.find(page => page.id === userId)) {
-            throw new Error('You are already logged in');
+            return 'Successful login with given Google ID';
         }
 
         this.loginPage = await this.createBrowserContextPage(userId);
         
         await this.loginPage.waitForSelector('iframe.signin-iframe');
 
-        await this.loginPage.evaluate((email, password) => {
-            const frame = document.getElementsByClassName('signin-iframe')[0]['contentWindow']['document'];
-            
-            const emailInput = frame.getElementById('ap_email');
-            const passwordInput = frame.getElementById('ap_password');
-            const submitButton = frame.getElementById('signInSubmit');
-            const keepMeLoggedIn = frame.getElementsByName('rememberMe')[0];
-
-            emailInput.value = email;
-            passwordInput.value = password;
-            keepMeLoggedIn.value = false;
-
-            submitButton.click();
-        }, email, password);
+        try {
+            await this.loginPage.evaluate((email, password) => {
+                const frame = document.getElementsByClassName('signin-iframe')[0]['contentWindow']['document'];
+                
+                const emailInput = frame.getElementById('ap_email');
+                const passwordInput = frame.getElementById('ap_password');
+                const submitButton = frame.getElementById('signInSubmit');
+                const keepMeLoggedIn = frame.getElementsByName('rememberMe')[0];
+    
+                emailInput.value = email;
+                passwordInput.value = password;
+                keepMeLoggedIn.value = false;
+    
+                submitButton.click();
+            }, email, password);
+        } catch (e) {
+            this.closeCurrentLoginPage(userId);
+            throw new BookDepositoryDOMChangedException('Currrent selectors were unable to find the login form');
+        }
 
         await this.loginPage.waitForNavigation();
+
+        if (this.loginPage.url().indexOf('ap') !== -1) {
+            this.closeCurrentLoginPage(userId);
+            throw new BookDepositoryDOMChangedException('Automated headless login failed');
+        }
+
         await this.loginPage.goto(this.depoWishlistURL);
 
         if (this.loginPage.url().indexOf('wishlist') === -1) {
-            await this.loginPage.close();
-            this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
-            throw new Error('Invalid credentials');
+            this.closeCurrentLoginPage(userId);
+            throw new BookDepositoryAuthException('Invalid credentials');
         }
-        
-        return 'Success';
+
+        return 'Successful login with given Google ID';
     }
 
     public async getWishlistItems(userId: string): Promise<Array<DepositoryWishlistItem>> {
         this.loginPage = await this.getBrowserContextPageById(userId);
 
         if (!this.loginPage) {
-            throw new Error('You are not logged in');
+            throw new BookDepositoryAuthException('You are not logged in.');
         }
 
         await this.loginPage.goto(this.depoWishlistURL);
@@ -96,7 +107,7 @@ export class DepositoryHeadlessService implements OnInit {
         this.loginPage = await this.getBrowserContextPageById(userId);
 
         if (!this.loginPage) {
-            throw new Error('You cannot log out');
+            throw new BookDepositoryAuthException('You cannot log out, if you are not logged in.');
         }
 
         await this.loginPage.evaluate(() => {
@@ -108,7 +119,7 @@ export class DepositoryHeadlessService implements OnInit {
     
         this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
 
-        return 'Success';
+        return 'Successful logout with the given Google ID.';
     }
 
     private async createBrowserContextPage(id: string): Promise<puppeteer.Page> {
@@ -131,5 +142,11 @@ export class DepositoryHeadlessService implements OnInit {
         } 
 
         return null;
+    }
+
+    private async closeCurrentLoginPage(userId: string): Promise<void> {
+        await this.loginPage.close();
+            this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
+            
     }
 }
