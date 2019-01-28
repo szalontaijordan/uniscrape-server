@@ -1,5 +1,6 @@
-import { Service, OnInit } from '@tsed/common';
 import * as mongodb from 'mongodb';
+import { Service, OnInit } from '@tsed/common';
+
 import { config } from '../../../config/vars';
 
 @Service()

@@ -1,10 +1,13 @@
-import { Service, OnInit } from '@tsed/common';
+import * as _ from 'lodash';
+import * as microdata from 'microdata-node';
 import fetch from 'node-fetch';
+
+import { Service, OnInit } from '@tsed/common';
 import { JSDOM } from 'jsdom';
+
 import { DepositoryBookItem } from '../../models/depository-book-item.model';
 
-import * as microdata from 'microdata-node';
-import * as _ from 'lodash';
+
 import { BookDepositoryDOMChangedException, BookDepositoryEmptyResultsException } from '../../models/exceptions/book.exceptions';
 
 @Service()

@@ -1,5 +1,5 @@
-import { Service, OnInit, OnDestroy } from '@tsed/common';
 import * as puppeteer from 'puppeteer';
+import { Service, OnInit, OnDestroy } from '@tsed/common';
 
 @Service()
 export class PuppeteerService implements OnInit, OnDestroy {

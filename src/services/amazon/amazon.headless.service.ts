@@ -1,4 +1,5 @@
 import { Service, OnInit } from '@tsed/common';
+
 import { PuppeteerService } from '../puppeteer/puppeteer.service';
 import { AmazonEmptyResultsException, AmazonDOMChangedException } from '../../models/exceptions/book.exceptions';
 

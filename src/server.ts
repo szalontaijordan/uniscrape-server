@@ -1,6 +1,7 @@
 import * as Path from 'path';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
+
 import { ServerLoader, ServerSettings } from '@tsed/common';
 import { GlobalErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
 

@@ -1,10 +1,9 @@
-import { Service, OnInit } from '@tsed/common';
-import { JSDOM } from 'jsdom';
-import { DepositoryBookItem, DepositoryWishlistItem } from '../../models/depository-book-item.model';
-
-import * as puppeteer from 'puppeteer';
 import * as _ from 'lodash';
+import * as puppeteer from 'puppeteer';
+
+import { Service, OnInit } from '@tsed/common';
 import { PuppeteerService } from '../puppeteer/puppeteer.service';
+import { DepositoryWishlistItem } from '../../models/depository-book-item.model';
 import { BookDepositoryDOMChangedException, BookDepositoryAuthException } from '../../models/exceptions/book.exceptions';
 
 @Service()

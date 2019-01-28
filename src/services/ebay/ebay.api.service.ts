@@ -1,7 +1,8 @@
-import { Service, OnInit } from '@tsed/common';
+import * as _ from 'lodash';
 import fetch from 'node-fetch';
 
-import * as _ from 'lodash';
+import { Service, OnInit } from '@tsed/common';
+
 import { config } from '../../../config/vars';
 import { EbayKeywordsResult, EbayApiKeywordsResponse } from '../../models/ebay-result.model';
 import { EbayAPIException, EbayEmptyResultsException } from '../../models/exceptions/book.exceptions';
