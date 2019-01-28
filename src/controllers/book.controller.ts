@@ -9,7 +9,10 @@ import { DepositoryHeadlessService } from '../services/depository/depository.hea
 import { EbayApiService } from '../services/ebay/ebay.api.service';
 
 import { GoogleMiddleware } from '../middlewares/google.middleware';
-import { DepositoryCommonErrorResponse, DepositoryAuthErrorResponse } from '../models/error-responses/depository.error-response';
+import { DepositoryCommonErrorResponse, DepositoryAuthErrorResponse, DepositoryEmptyResultsErrorResponse } from '../models/error-responses/depository.error-response';
+import { BookDepositoryDOMChangedException, EbayAPIException, BookDepositoryEmptyResultsException, AmazonEmptyResultsException } from '../models/exceptions/book.exceptions';
+import { EbayCommonErrorResponse, EbayEmptyResultsErrorResponse } from '../models/error-responses/ebay.error-response';
+import { AmazonEmptyResultsErrorResponse, AmazonCommonErrorResponse } from '../models/error-responses/amazon.error-response';
 
 @Controller('/book')
 export class BookController {
@@ -49,6 +52,9 @@ export class BookController {
             const books = await this.depoDom.getDepositorySearch(searchTerm, page);
             return { books };
         } catch (e) {
+            if (e instanceof BookDepositoryEmptyResultsException) {
+                throw new DepositoryEmptyResultsErrorResponse(e);
+            }
             throw new DepositoryCommonErrorResponse(e);
         } finally {
             this.sendSearchStatistics(searchTerm, userId);   
@@ -85,6 +91,9 @@ export class BookController {
             const books = await this.depoHeadless.getWishlistItems(userId);
             return { books };
         } catch (e) {
+            if (e instanceof BookDepositoryDOMChangedException) {
+                throw new DepositoryCommonErrorResponse(e);
+            }
             throw new DepositoryAuthErrorResponse(e);
         }
     }
@@ -94,22 +103,34 @@ export class BookController {
     @Get('/ebay/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
     async getEbaySearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
-        this.sendSearchStatistics(searchTerm, userId);
-        
-        const books = await this.ebayApi.getEbaySearch(searchTerm, page);
-        
-        return { books };
+        try {
+            const books = await this.ebayApi.getEbaySearch(searchTerm, page);
+            return { books };
+        } catch (e) {
+            if (e instanceof EbayAPIException) {
+                throw new EbayCommonErrorResponse(e);
+            }
+            throw new EbayEmptyResultsErrorResponse(e);
+        } finally {
+            this.sendSearchStatistics(searchTerm, userId);
+        }
     }
 
     @Get('/amazon/search/:searchTerm')
     @Get('/amazon/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
     async getAmazonSearchResults(@PathParams('searchTerm') searchTerm: string, @PathParams('page') page: number = 1, @Locals('userId') userId: string) {
-        this.sendSearchStatistics(searchTerm, userId);
-
-        const books = await this.amazonHeadless.getAmazonSearch(searchTerm);
-
-        return { books };
+        try {
+            const books = await this.amazonHeadless.getAmazonSearch(searchTerm);
+            return { books };
+        } catch (e) {
+            if (e instanceof AmazonEmptyResultsException) {
+                throw new AmazonEmptyResultsErrorResponse(e);
+            }
+            throw new AmazonCommonErrorResponse(e);
+        } finally {
+            this.sendSearchStatistics(searchTerm, userId);
+        }
     }
 
     @Get('/internal/wishlist')

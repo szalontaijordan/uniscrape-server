@@ -5,7 +5,7 @@ import { DepositoryBookItem } from '../../models/depository-book-item.model';
 
 import * as microdata from 'microdata-node';
 import * as _ from 'lodash';
-import { BookDepositoryDOMChangedException } from '../../models/exceptions/book.exceptions';
+import { BookDepositoryDOMChangedException, BookDepositoryEmptyResultsException } from '../../models/exceptions/book.exceptions';
 
 @Service()
 export class DepositoryDOMService implements OnInit {
@@ -108,7 +108,7 @@ export class DepositoryDOMService implements OnInit {
 
     private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<DepositoryBookItem> {
         if (!books.length) {
-            throw new BookDepositoryDOMChangedException('The list of the books scraped by the current selector is empty.');
+            throw new BookDepositoryEmptyResultsException('The list of the books scraped by the current selector is empty.');
         }
 
         return _.map(_.toArray(books), (book: Element) => {

@@ -4,7 +4,7 @@ import { DepositoryBookItem, DepositoryWishlistItem } from '../../models/deposit
 
 import * as puppeteer from 'puppeteer';
 import * as _ from 'lodash';
-import { PuppeteerService } from '../shared/puppeteer.service';
+import { PuppeteerService } from '../puppeteer/puppeteer.service';
 import { BookDepositoryDOMChangedException, BookDepositoryAuthException } from '../../models/exceptions/book.exceptions';
 
 @Service()

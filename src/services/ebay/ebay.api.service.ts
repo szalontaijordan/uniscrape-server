@@ -4,11 +4,14 @@ import fetch from 'node-fetch';
 import * as _ from 'lodash';
 import { config } from '../../../config/vars';
 import { EbayKeywordsResult, EbayApiKeywordsResponse } from '../../models/ebay-result.model';
+import { EbayAPIException, EbayEmptyResultsException } from '../../models/exceptions/book.exceptions';
+
+const { findingApiProdUrl, query, prodAppId } = config.ebay;
 
 @Service()
 export class EbayApiService implements OnInit {
     
-    private findUrl = config.ebay.findingApiProdUrl.concat(config.ebay.query).replace('#APPID#', config.ebay.prodAppId);
+    private findUrl = findingApiProdUrl.concat(query).replace('#APPID#', prodAppId);
 
     constructor() {
     }
@@ -25,9 +28,15 @@ export class EbayApiService implements OnInit {
         const { findItemsByKeywordsResponse } = (await response.json() as EbayApiKeywordsResponse);
 
         if (findItemsByKeywordsResponse[0].ack[0] !== 'Success') {
-            return [];
+            throw new EbayAPIException('There was a problem with the Ebay API call');
         }
 
-        return findItemsByKeywordsResponse[0].searchResult[0].item;
+        const resultList = findItemsByKeywordsResponse[0].searchResult[0].item;
+
+        if (!resultList) {
+            throw new EbayEmptyResultsException('The result list is empty');
+        }
+
+        return resultList;
     }
 }

@@ -1,5 +1,6 @@
 import { Service, OnInit } from '@tsed/common';
-import { PuppeteerService } from '../shared/puppeteer.service';
+import { PuppeteerService } from '../puppeteer/puppeteer.service';
+import { AmazonEmptyResultsException, AmazonDOMChangedException } from '../../models/exceptions/book.exceptions';
 
 @Service()
 export class AmazonHeadlessService implements OnInit {
@@ -17,7 +18,17 @@ export class AmazonHeadlessService implements OnInit {
             .replace('#KEYWORDS#', encodeURIComponent(keywords).replace('%20', '+'))
             .replace('#PAGE#', String(page));
     
-        return await this.puppeteerService.getInformationFromPage(URL, this.extractAmazonResults());
+        try {
+            const resultList = await this.puppeteerService.getInformationFromPage(URL, this.extractAmazonResults());
+
+            if (!resultList.length) {
+                throw new AmazonEmptyResultsException('The list of the results is empty');
+            }
+    
+            return resultList;    
+        } catch (e) {
+            throw new AmazonDOMChangedException(e);
+        }
     }
     
     private extractAmazonResults() {
