@@ -40,6 +40,7 @@ Where not otherwise stated a `DepositoryBookItem` entity looks like the followin
         url: string
     },
     currentPrice: number,
+    linkToBook: string,
     image: string
 }
 ```

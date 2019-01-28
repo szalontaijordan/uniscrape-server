@@ -4,6 +4,7 @@ export interface DepositoryBookItem {
     published: string;
     author?: DepositoryBookItemAuthor;
     currentPrice?: number;
+    linkToBook?: string;
     image: string;
 }
 

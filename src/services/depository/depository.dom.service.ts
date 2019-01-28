@@ -64,8 +64,12 @@ export class DepositoryDOMService implements OnInit {
 
     private generateAdditionalMetadataFor(book: Element): string {
         const dom = new JSDOM(book.outerHTML);
-        const image = dom.window.document.querySelector('.item-img img');
-        const price = dom.window.document.querySelector('.price');
+
+        const { document } = dom.window;
+
+        const image = document.querySelector('.item-img img');
+        const price = document.querySelector('.price');
+        const linkToBook = document.querySelector('.item-img a');
         
         if (image) {
             image.setAttribute('itemprop', 'image');
@@ -74,6 +78,10 @@ export class DepositoryDOMService implements OnInit {
         
         if (price) {
             price.setAttribute('itemprop', 'price');
+        }
+
+        if (linkToBook) {
+            linkToBook.setAttribute('itemprop', 'linkToBook');
         }
 
         return dom.serialize();
@@ -104,6 +112,10 @@ export class DepositoryDOMService implements OnInit {
                 name: props.author[0].properties.name[0],
                 url: props.author[0].properties.url[0],
             }    
+        }
+
+        if (props.linkToBook) {
+            bookItem.linkToBook = props.linkToBook[0];
         }
         
         return bookItem;
