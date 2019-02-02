@@ -1,7 +1,9 @@
 import { Service, OnInit } from '@tsed/common';
 
-import { PuppeteerService } from '../puppeteer/puppeteer.service';
-import { AmazonEmptyResultsException, AmazonDOMChangedException } from '../../models/exceptions/book.exceptions';
+import { PuppeteerService } from '../utils/puppeteer.service';
+import { AmazonEmptyResultsException, AmazonDOMChangedException } from '../../types/exceptions/book.exceptions';
+import { AmazonBookItem } from '../../types/book/amazon.type';
+import { EvaluateFn } from 'puppeteer';
 
 @Service()
 export class AmazonHeadlessService implements OnInit {
@@ -11,10 +13,10 @@ export class AmazonHeadlessService implements OnInit {
     constructor(private puppeteerService: PuppeteerService) {
     }
     
-    public async $onInit() {
+    public $onInit(): void {
     }
 
-    public async getAmazonSearch(keywords: string, page: number = 1) {
+    public async getAmazonSearch(keywords: string, page: number = 1): Promise<Array<AmazonBookItem>> {
         const URL = this.amazonSearchURL
             .replace('#KEYWORDS#', encodeURIComponent(keywords).replace('%20', '+'))
             .replace('#PAGE#', String(page));
@@ -27,7 +29,7 @@ export class AmazonHeadlessService implements OnInit {
         return resultList;    
     }
     
-    private extractAmazonResults() {
+    private extractAmazonResults(): EvaluateFn {
         try {   
             return () => {
                 return Array.from(document.getElementsByClassName('s-item-container'))
@@ -52,5 +54,4 @@ export class AmazonHeadlessService implements OnInit {
             throw new AmazonDOMChangedException('The current selectors were not able to find any books');
         }
     }
-    
 }

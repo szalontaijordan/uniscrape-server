@@ -24,6 +24,7 @@
     "@types/http-status": "^0.2.30",
     "@types/jsdom": "^12.2.1",
     "@types/lodash": "^4.14.119",
+    "@types/mongodb": "^3.1.19",
     "@types/node-fetch": "^2.1.4",
     "@types/puppeteer": "^1.11.1",
     "tsc-watch": "^1.0.31",
