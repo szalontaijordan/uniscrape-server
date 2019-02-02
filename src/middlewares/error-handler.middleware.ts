@@ -1,17 +1,17 @@
 import * as express from 'express';
 import { IMiddlewareError, MiddlewareError, Request, Response, Next, Err } from '@tsed/common';
+
 import { Exception as HttpException } from 'ts-httpexceptions';
 
 import { get } from 'lodash';
 
 @MiddlewareError()
-export class GlobalErrorHandlerMiddleware implements IMiddlewareError {
+export class ErrorHandlerMiddleware implements IMiddlewareError {
 
-    use(@Err() error: any,
+    public use(@Err() error: HttpException | any,
         @Request() request: express.Request,
         @Response() response: express.Response,
-        @Next() next: express.NextFunction
-    ): any {
+        @Next() next: express.NextFunction): void {
         if (response.headersSent) {
             return next(error);
         }

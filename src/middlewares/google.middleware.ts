@@ -1,10 +1,18 @@
+import * as express from 'express';
 import { Middleware, IMiddleware, Request, Response, Next } from '@tsed/common';
 import { OAuth2Client } from 'google-auth-library';
 
 import { config } from '../../config/vars';
 
-import { GoogleAuthErrorResponse, GoogleCommonErrorResponse } from '../models/error-responses/google.error-response';
-import { GoogleIdTokenInvalidException, GoogleTokenMissingException } from '../models/exceptions/google.exceptions';
+import {
+    GoogleAuthErrorResponse,
+    GoogleCommonErrorResponse
+} from '../types/error-responses/google.error-response';
+
+import {
+    GoogleIdTokenInvalidException,
+    GoogleTokenMissingException
+} from '../types/exceptions/google.exceptions';
 
 @Middleware()
 export class GoogleMiddleware implements IMiddleware {
@@ -12,11 +20,10 @@ export class GoogleMiddleware implements IMiddleware {
     constructor() {
     }
 
-    async use(@Request() req, @Response() res, @Next() next) {
-        return await this.auth(req, res, next);
-    }
-
-    private async auth(@Request() req, @Response() res, @Next() next) {
+    public async use(
+        @Request() req: express.Request,
+        @Response() res: express.Response,
+        @Next() next: express.NextFunction): Promise<void> {
         const authHeader = req.get('Authorization');
 
         if (!authHeader || authHeader.indexOf('Bearer') !== 0) {

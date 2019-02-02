@@ -21,6 +21,22 @@ export interface DepositoryBookItemAuthor {
     url: string;
 }
 
+export interface DepositorySectionList {
+    sections: Array<string>;
+}
+
+export interface DepositoryBookList {
+    books: Array<DepositoryBookItem>;
+}
+
+export interface DepositoryAuthMessage {
+    auth: string;
+}
+
+export interface DepositoryWishlist {
+    books: Array<DepositoryWishlistItem>;
+}
+
 export const mockDepositoryBookItem = {
     ISBN: 'ISBN000000',
     title: 'Mock Book Item',

@@ -17,6 +17,10 @@ export interface EbayApiKeywordsResponse {
     }>;
 }
 
+export interface EbayBookList {
+    books: Array<EbayKeywordsResult>;
+}
+
 export interface EbayKeywordsResult {
     itemId: string[];
     title: string[];

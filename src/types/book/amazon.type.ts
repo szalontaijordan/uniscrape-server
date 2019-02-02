@@ -5,3 +5,7 @@ export interface AmazonBookItem {
     price: string;
     image: string;
 }
+
+export interface AmazonBookList {
+    books: Array<AmazonBookItem>;
+}

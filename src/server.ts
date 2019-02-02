@@ -3,20 +3,20 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 
 import { ServerLoader, ServerSettings } from '@tsed/common';
-import { GlobalErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
+import { ErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
 
 @ServerSettings({
     rootDir: Path.resolve(__dirname),
     acceptMimes: ['application/json'],
     mount: {
-        '/api': `${Path.resolve(__dirname)}/controllers/*.js`
+        '/api': `${Path.resolve(__dirname)}/controllers/**/*.js`
     },
     port: process.env.PORT || 8080,
     httpsPort: process.env.PORT || 8000,
 })
 export class Server extends ServerLoader {
 
-    public $onMountingMiddlewares(): void | Promise<any> {
+    public $onMountingMiddlewares(): void {
         this.use(bodyParser.json())
             .use(bodyParser.urlencoded({ extended: true }))
             .use((req, res, next) => {
@@ -40,15 +40,15 @@ export class Server extends ServerLoader {
             });
     }
 
-    $afterRoutesInit() {
-        this.use(GlobalErrorHandlerMiddleware);
+    public $afterRoutesInit(): void {
+        this.use(ErrorHandlerMiddleware);
     }
 
-    public $onReady() {
+    public $onReady(): void {
         console.log('Server started...');
     }
 
-    public $onServerInitError(err) {
+    public $onServerInitError(err: any): void {
         console.error(err);
     }
 }

@@ -4,20 +4,20 @@ import fetch from 'node-fetch';
 import { Service, OnInit } from '@tsed/common';
 
 import { config } from '../../../config/vars';
-import { EbayKeywordsResult, EbayApiKeywordsResponse } from '../../models/ebay-result.model';
-import { EbayAPIException, EbayEmptyResultsException } from '../../models/exceptions/book.exceptions';
-
-const { findingApiProdUrl, query, prodAppId } = config.ebay;
+import { EbayKeywordsResult, EbayApiKeywordsResponse } from '../../types/book/ebay.type';
+import { EbayAPIException, EbayEmptyResultsException } from '../../types/exceptions/book.exceptions';
 
 @Service()
 export class EbayApiService implements OnInit {
     
-    private findUrl = findingApiProdUrl.concat(query).replace('#APPID#', prodAppId);
+    private findUrl: string;
 
     constructor() {
     }
     
-    public async $onInit() {
+    public $onInit(): void {
+        const { findingApiProdUrl, query, prodAppId } = config.ebay;
+        this.findUrl = findingApiProdUrl.concat(query).replace('#APPID#', prodAppId);
     }
 
     public async getEbaySearch(keywords: string, page: number = 1): Promise<Array<EbayKeywordsResult>> {

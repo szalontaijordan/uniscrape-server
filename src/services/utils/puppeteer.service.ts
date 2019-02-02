@@ -9,7 +9,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
     constructor() {
     }
     
-    public $onInit() {
+    public $onInit(): void {
         puppeteer.launch({ headless: false })
             .then(browser => {
                 this.browser = browser;
@@ -18,8 +18,9 @@ export class PuppeteerService implements OnInit, OnDestroy {
             .catch(err => console.log(err.message));
     }
 
-    public $onDestroy() {
-        this.browser.close();
+    public $onDestroy(): void {
+        this.browser.close()
+            .then(() => console.log('Headless browser closed ...'));
     }
 
     public async openPage(url: string, ...children: Array<string>): Promise<puppeteer.Page> {

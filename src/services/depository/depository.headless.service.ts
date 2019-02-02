@@ -1,10 +1,14 @@
 import * as _ from 'lodash';
 import * as puppeteer from 'puppeteer';
-
 import { Service, OnInit } from '@tsed/common';
-import { PuppeteerService } from '../puppeteer/puppeteer.service';
-import { DepositoryWishlistItem } from '../../models/depository-book-item.model';
-import { BookDepositoryDOMChangedException, BookDepositoryAuthException } from '../../models/exceptions/book.exceptions';
+
+import { PuppeteerService } from '../utils/puppeteer.service';
+
+import {
+    BookDepositoryDOMChangedException,
+    BookDepositoryAuthException
+} from '../../types/exceptions/book.exceptions';
+import { DepositoryWishlistItem } from '../../types/book/depository.type';
 
 @Service()
 export class DepositoryHeadlessService implements OnInit {
@@ -19,7 +23,7 @@ export class DepositoryHeadlessService implements OnInit {
     constructor(private puppeteerService: PuppeteerService) {
     }
     
-    public async $onInit() {
+    public $onInit(): void {
         this.browserContextPages = [];
     }
 
@@ -78,28 +82,7 @@ export class DepositoryHeadlessService implements OnInit {
 
         await this.loginPage.goto(this.depoWishlistURL);
 
-        return this.loginPage.evaluate(() => {
-            return Array.from(document.getElementsByClassName('book-list-item'))
-                .map(book => {
-                    const authorElement = book.getElementsByClassName('author')[0];
-                    const titleElement = book.getElementsByTagName('h2')[0];
-                    const imageElement = book.getElementsByTagName('img')[0];
-                    const priceElement = book.getElementsByClassName('price')[0];
-
-                    const currentPrice = priceElement['innerText'].replace(/\s/g, '').match(/[0-9]+/g);
-
-                    return {
-                        currentPrice: currentPrice ? Number(currentPrice[0]) : -1,
-                        image: imageElement.getAttribute('src'),
-                        title: titleElement['innerText'],
-                        url: titleElement.firstElementChild.getAttribute('href'),
-                        author: {
-                            name: authorElement['innerText'],
-                            url: authorElement.firstElementChild.getAttribute('href')
-                        }
-                    };
-                });
-        });
+        return this.loginPage.evaluate(this.getWishlistFromDOM());
     }
 
     public async logout(userId: string): Promise<string> {
@@ -121,6 +104,31 @@ export class DepositoryHeadlessService implements OnInit {
         return 'Successful logout with the given Google ID.';
     }
 
+    private getWishlistFromDOM(): puppeteer.EvaluateFn {
+        return () => {
+            return Array.from(document.getElementsByClassName('book-list-item'))
+                .map(book => {
+                    const authorElement = book.getElementsByClassName('author')[0];
+                    const titleElement = book.getElementsByTagName('h2')[0];
+                    const imageElement = book.getElementsByTagName('img')[0];
+                    const priceElement = book.getElementsByClassName('price')[0];
+
+                    const currentPrice = priceElement['innerText'].replace(/\s/g, '').match(/[0-9]+/g);
+
+                    return {
+                        currentPrice: currentPrice ? Number(currentPrice[0]) : -1,
+                        image: imageElement.getAttribute('src'),
+                        title: titleElement['innerText'],
+                        url: titleElement.firstElementChild.getAttribute('href'),
+                        author: {
+                            name: authorElement['innerText'],
+                            url: authorElement.firstElementChild.getAttribute('href')
+                        }
+                    };
+                });
+        }
+    }
+
     private async createBrowserContextPage(id: string): Promise<puppeteer.Page> {
         const existingPage = this.browserContextPages.find(page => page.id === id);
         
@@ -133,7 +141,7 @@ export class DepositoryHeadlessService implements OnInit {
         }
     }
 
-    private async getBrowserContextPageById(id: string): Promise<puppeteer.Page> {
+    private async getBrowserContextPageById(id: string): Promise<puppeteer.Page | null> {
         const existingPage = this.browserContextPages.find(page => page.id === id);
         
         if (existingPage) {
@@ -145,7 +153,6 @@ export class DepositoryHeadlessService implements OnInit {
 
     private async closeCurrentLoginPage(userId: string): Promise<void> {
         await this.loginPage.close();
-            this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
-            
+        this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
     }
 }

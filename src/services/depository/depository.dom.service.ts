@@ -5,10 +5,12 @@ import fetch from 'node-fetch';
 import { Service, OnInit } from '@tsed/common';
 import { JSDOM } from 'jsdom';
 
-import { DepositoryBookItem } from '../../models/depository-book-item.model';
+import { DepositoryBookItem } from '../../types/book/depository.type';
 
-
-import { BookDepositoryDOMChangedException, BookDepositoryEmptyResultsException } from '../../models/exceptions/book.exceptions';
+import {
+    BookDepositoryDOMChangedException,
+    BookDepositoryEmptyResultsException
+} from '../../types/exceptions/book.exceptions';
 
 @Service()
 export class DepositoryDOMService implements OnInit {
@@ -19,7 +21,7 @@ export class DepositoryDOMService implements OnInit {
     constructor() {
     }
     
-    public async $onInit() {
+    public $onInit(): void {
     }
 
     public async getDepositoryHomeSections(): Promise<Array<string>> {
@@ -87,7 +89,7 @@ export class DepositoryDOMService implements OnInit {
         return dom.serialize();
     }
 
-    private createBookItemFrom(response: any): DepositoryBookItem {
+    private createBookItemFrom(response: any & { items: Array<object & { properties: object}>}): DepositoryBookItem {
         const props = response.items[0].properties;
 
         const bookItem: DepositoryBookItem = {
