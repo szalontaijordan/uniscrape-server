@@ -11,8 +11,12 @@ export class DatabaseService implements OnInit {
     constructor() {
     }
     
-    public async $onInit(): Promise<void> {
-        this.client = await mongodb.MongoClient.connect(config.db.testURI, { useNewUrlParser: true });
+    public $onInit(): Promise<void> {
+        return mongodb.MongoClient.connect(config.db.testURI, { useNewUrlParser: true })
+            .then(client => {
+                this.client = client;
+                console.log('MongoDB connected to test URI');
+            });
     }
 
     public async getInternalWishlist(): Promise<mongodb.Collection<any>> {

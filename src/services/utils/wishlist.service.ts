@@ -1,7 +1,7 @@
 import { Service, OnInit } from '@tsed/common';
 import { DatabaseService } from './db.service';
 
-import { DepositoryBookItem } from '../../types/book/depository.type';
+import { CommonBookItem } from '../../types/book/all.type';
 
 @Service()
 export class WishlistService implements OnInit {
@@ -12,15 +12,15 @@ export class WishlistService implements OnInit {
     public $onInit(): void {
     }
 
-    public async getBookItemsOnInternalWishlist(userId: string): Promise<Array<DepositoryBookItem>> {
+    public async getBookItemsOnInternalWishlist(userId: string): Promise<Array<CommonBookItem>> {
         const internalWishlist = await this.db.getInternalWishlist();
         const entities = await internalWishlist.find({ userId }).toArray();
-        const books = entities.map((entity: any & { bookItem: DepositoryBookItem }) => entity.bookItem);
+        const books = entities.map((entity: any & { bookItem: CommonBookItem }) => entity.bookItem);
 
         return books;
     }
 
-    public async addBookItemToInternalWishlist(bookItem: DepositoryBookItem, userId: string): Promise<DepositoryBookItem> {
+    public async addBookItemToInternalWishlist(bookItem: CommonBookItem, userId: string): Promise<CommonBookItem> {
         const internalWishlist = await this.db.getInternalWishlist();
         await internalWishlist.insertOne({ userId, bookItem });
 

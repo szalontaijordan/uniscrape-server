@@ -22,7 +22,7 @@ export class GoogleMiddleware implements IMiddleware {
         const authHeader = req.get('Authorization');
 
         try {
-            const userId = this.googleService.validateGoogleIdToken(authHeader);
+            const userId = await this.googleService.validateGoogleIdToken(authHeader);
             res.locals.userId = userId;
             next();
         } catch (e) {

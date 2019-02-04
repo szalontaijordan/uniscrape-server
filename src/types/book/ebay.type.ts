@@ -25,6 +25,7 @@ export interface EbayKeywordsResult {
     itemId: string[];
     title: string[];
     globalId: string[];
+    galleryURL: string[];
     primaryCategory: PrimaryCategory[];
     viewItemURL: string[];
     productId: ProductId[];

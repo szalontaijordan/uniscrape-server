@@ -4,23 +4,24 @@ import { InternalServerError, NotFound, Unauthorized } from 'ts-httpexceptions';
 import { DepositoryDOMService } from '../../services/depository/depository.dom.service';
 import { DepositoryHeadlessService } from '../../services/depository/depository.headless.service';
 import { StatisticsService } from '../../services/utils/statistics.service';
+import { BookTransformerService } from '../../services/utils/book-transformer.service';
 
 import {
     DepositorySectionList,
-    DepositoryBookList, 
     DepositoryAuthMessage,
-    DepositoryWishlist
 } from '../../types/book/depository.type';
 import { DepositoryEmptyResultsException, DepositoryDOMChangedException } from '../../types/exceptions/book.exceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
+import { CommonBookList } from '../../types/book/all.type';
 
 @Controller('/book/depository')
 export class DepositoryController {
 
     constructor(private depoDom: DepositoryDOMService,
                 private depoHeadless: DepositoryHeadlessService,
-                private statistics: StatisticsService) {
+                private statistics: StatisticsService,
+                private bookTransformer: BookTransformerService) {
     }
 
     @Get('/sections')
@@ -35,10 +36,10 @@ export class DepositoryController {
 
     @Get('/section/:sectionName')
     public async getBookItemsOfSection(
-        @PathParams('sectionName') sectionName: string): Promise<DepositoryBookList> {
+        @PathParams('sectionName') sectionName: string): Promise<CommonBookList> {
         try {
             const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
-            return { books };
+            return { books: books.map(this.bookTransformer.transformDepositoryToCommon) };
         } catch (e) {
             throw new InternalServerError(e.message);
         }
@@ -50,10 +51,10 @@ export class DepositoryController {
     public async getDepositorySearchResults(
         @PathParams('searchTerm') searchTerm: string,
         @PathParams('page') page: number = 1,
-        @Locals('userId') userId: string): Promise<DepositoryBookList> {
+        @Locals('userId') userId: string): Promise<CommonBookList> {
         try {
             const books = await this.depoDom.getDepositorySearch(searchTerm, page);
-            return { books };
+            return { books: books.map(this.bookTransformer.transformDepositoryToCommon) };
         } catch (e) {
             if (e instanceof DepositoryEmptyResultsException) {
                 throw new NotFound(e.message);
@@ -92,10 +93,10 @@ export class DepositoryController {
 
     @Get('/wishlist')
     @UseBefore(GoogleMiddleware)
-    public async getDepositoryWishlist(@Locals('userId') userId: string): Promise<DepositoryWishlist> {
+    public async getDepositoryWishlist(@Locals('userId') userId: string): Promise<CommonBookList> {
         try {
             const books = await this.depoHeadless.getWishlistItems(userId);
-            return { books };
+            return { books: books.map(this.bookTransformer.transformDepositoryWishlistToCommon) };
         } catch (e) {
             if (e instanceof DepositoryDOMChangedException) {
                 throw new InternalServerError(e.message);

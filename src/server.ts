@@ -33,7 +33,7 @@ export class Server extends ServerLoader {
             .use(express.static(Path.join(__dirname, '..', '/public')))
             .use((req, res, next) => {
                 if (!(req.originalUrl.indexOf('/api') === 0)) {
-                    res.sendfile(Path.join(__dirname, '..', '/public/index.html'));
+                    res.sendFile(Path.join(__dirname, '..', '/public/index.html'));
                 } else {
                     next();
                 }
