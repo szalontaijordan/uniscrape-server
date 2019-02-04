@@ -1,13 +1,9 @@
 import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams } from '@tsed/common';
+import { InternalServerError, NotFound, Unauthorized } from 'ts-httpexceptions';
 
 import { DepositoryDOMService } from '../../services/depository/depository.dom.service';
 import { DepositoryHeadlessService } from '../../services/depository/depository.headless.service';
-
-import {
-    DepositoryCommonErrorResponse,
-    DepositoryAuthErrorResponse,
-    DepositoryEmptyResultsErrorResponse
-} from '../../types/error-responses/depository.error-response';
+import { StatisticsService } from '../../services/utils/statistics.service';
 
 import {
     DepositorySectionList,
@@ -15,14 +11,9 @@ import {
     DepositoryAuthMessage,
     DepositoryWishlist
 } from '../../types/book/depository.type';
-
-import {
-    BookDepositoryDOMChangedException,
-    BookDepositoryEmptyResultsException
-} from '../../types/exceptions/book.exceptions';
+import { DepositoryEmptyResultsException, DepositoryDOMChangedException } from '../../types/exceptions/book.exceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
-import { StatisticsService } from '../../services/utils/statistics.service';
 
 @Controller('/book/depository')
 export class DepositoryController {
@@ -38,7 +29,7 @@ export class DepositoryController {
             const sections = await this.depoDom.getDepositoryHomeSections();
             return { sections };
         } catch (e) {
-            throw new DepositoryCommonErrorResponse(e);
+            throw new InternalServerError(e.message);
         }
     }
 
@@ -49,7 +40,7 @@ export class DepositoryController {
             const books = await this.depoDom.getDepositoryHomeBooksBySection(sectionName);
             return { books };
         } catch (e) {
-            throw new DepositoryCommonErrorResponse(e);
+            throw new InternalServerError(e.message);
         }
     }
 
@@ -64,10 +55,10 @@ export class DepositoryController {
             const books = await this.depoDom.getDepositorySearch(searchTerm, page);
             return { books };
         } catch (e) {
-            if (e instanceof BookDepositoryEmptyResultsException) {
-                throw new DepositoryEmptyResultsErrorResponse(e);
+            if (e instanceof DepositoryEmptyResultsException) {
+                throw new NotFound(e.message);
             }
-            throw new DepositoryCommonErrorResponse(e);
+            throw new InternalServerError(e.message);
         } finally {
             this.statistics.sendSearchStatistics(searchTerm, userId);   
         }
@@ -83,7 +74,7 @@ export class DepositoryController {
             const success = await this.depoHeadless.login(email, password, userId);
             return { auth: success };
         } catch (e) {
-            throw new DepositoryAuthErrorResponse(e);
+            throw new Unauthorized(e.message);
         }
     }
 
@@ -94,7 +85,7 @@ export class DepositoryController {
             const success = await this.depoHeadless.logout(userId);
             return { auth: success };
         } catch (e) {
-            throw new DepositoryAuthErrorResponse(e);
+            throw new Unauthorized(e.message);
         }
     }
 
@@ -106,10 +97,10 @@ export class DepositoryController {
             const books = await this.depoHeadless.getWishlistItems(userId);
             return { books };
         } catch (e) {
-            if (e instanceof BookDepositoryDOMChangedException) {
-                throw new DepositoryCommonErrorResponse(e);
+            if (e instanceof DepositoryDOMChangedException) {
+                throw new InternalServerError(e.message);
             }
-            throw new DepositoryAuthErrorResponse(e);
+            throw new Unauthorized(e.message);
         }
     }
 }

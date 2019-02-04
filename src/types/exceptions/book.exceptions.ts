@@ -1,64 +1,51 @@
-import { CustomException } from './exception';
+import { AmazonException, DepositoryException, EbayException } from './exceptions';
 
-export class BookDepositoryDOMChangedException extends CustomException {
+export class DepositoryDOMChangedException extends DepositoryException {
     
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class BookDepositoryEmptyResultsException extends CustomException {
+export class DepositoryEmptyResultsException extends DepositoryException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class BookDepositoryAuthException extends CustomException {
+export class DepositoryAuthException extends DepositoryException {
     
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class EbayAPIException extends CustomException {
+export class EbayAPIException extends EbayException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class EbayEmptyResultsException extends CustomException {
+export class EbayEmptyResultsException extends EbayException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class AmazonDOMChangedException extends CustomException {
+export class AmazonDOMChangedException extends AmazonException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class AmazonEmptyResultsException extends CustomException {
+export class AmazonEmptyResultsException extends AmazonException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
-
-export type DepositroyException =
-    BookDepositoryDOMChangedException |
-    BookDepositoryEmptyResultsException |
-    BookDepositoryAuthException;
-
-export type EbayException =
-    EbayAPIException |
-    EbayEmptyResultsException;
-
-export type AmazonException =
-    AmazonDOMChangedException |
-    AmazonEmptyResultsException;
     

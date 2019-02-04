@@ -1,9 +1,11 @@
 import { Service, OnInit } from '@tsed/common';
+import { EvaluateFn } from 'puppeteer';
 
 import { PuppeteerService } from '../utils/puppeteer.service';
 import { AmazonEmptyResultsException, AmazonDOMChangedException } from '../../types/exceptions/book.exceptions';
 import { AmazonBookItem } from '../../types/book/amazon.type';
-import { EvaluateFn } from 'puppeteer';
+
+import { AMAZON_EMPTY_RESULTS_MESSAGE, AMAZON_DOM_CHANGED_MESSAGE } from '../../types/exceptions/exceptions';
 
 @Service()
 export class AmazonHeadlessService implements OnInit {
@@ -23,7 +25,7 @@ export class AmazonHeadlessService implements OnInit {
         const resultList = await this.puppeteerService.getInformationFromPage(URL, this.extractAmazonResults());
 
         if (!resultList.length) {
-            throw new AmazonEmptyResultsException('The list of the results is empty');
+            throw new AmazonEmptyResultsException(AMAZON_EMPTY_RESULTS_MESSAGE);
         }
 
         return resultList;    
@@ -51,7 +53,7 @@ export class AmazonHeadlessService implements OnInit {
                     .filter(book => !!book);
             } 
         } catch (e) {
-            throw new AmazonDOMChangedException('The current selectors were not able to find any books');
+            throw new AmazonDOMChangedException(AMAZON_DOM_CHANGED_MESSAGE);
         }
     }
 }

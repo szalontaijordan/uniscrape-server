@@ -1,13 +1,10 @@
 import { Controller, Locals,  Get, UseBefore, PathParams } from '@tsed/common';
+import { NotFound, InternalServerError } from 'ts-httpexceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 
 import { AmazonEmptyResultsException } from '../../types/exceptions/book.exceptions';
 import { AmazonBookList } from '../../types/book/amazon.type';
-import {
-    AmazonEmptyResultsErrorResponse,
-    AmazonCommonErrorResponse
-} from '../../types/error-responses/amazon.error-response';
 
 import { AmazonHeadlessService } from '../../services/amazon/amazon.headless.service';
 import { StatisticsService } from '../../services/utils/statistics.service';
@@ -31,9 +28,9 @@ export class AmazonController {
             return { books };
         } catch (e) {
             if (e instanceof AmazonEmptyResultsException) {
-                throw new AmazonEmptyResultsErrorResponse(e);
+                throw new NotFound(e.message);
             }
-            throw new AmazonCommonErrorResponse(e);
+            throw new InternalServerError(e.message);
         } finally {
             this.statistics.sendSearchStatistics(searchTerm, userId);
         }

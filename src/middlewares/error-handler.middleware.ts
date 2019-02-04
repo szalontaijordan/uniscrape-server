@@ -1,9 +1,7 @@
 import * as express from 'express';
 import { IMiddlewareError, MiddlewareError, Request, Response, Next, Err } from '@tsed/common';
 
-import { Exception as HttpException } from 'ts-httpexceptions';
-
-import { get } from 'lodash';
+import { Exception as HttpException, InternalServerError } from 'ts-httpexceptions';
 
 @MiddlewareError()
 export class ErrorHandlerMiddleware implements IMiddlewareError {
@@ -19,13 +17,9 @@ export class ErrorHandlerMiddleware implements IMiddlewareError {
         console.log(JSON.stringify(error, null, 2));
 
         if (error instanceof HttpException) {
-            const { status, message } = error;
-            const type = get((error as any).exception || error, 'constructor.name');
-            const date = new Date();
-
-            response.status(error.status).send({ message, status, type, date });
+            response.status(error.status).send(error);
         } else {
-            response.status(500).send({ message: 'Internal error.', status: 500, type: 'InternalServerError', date: new Date() });
+            response.status(500).send(new InternalServerError('Internal error'));
         }
 
         return next();

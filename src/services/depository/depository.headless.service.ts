@@ -5,10 +5,19 @@ import { Service, OnInit } from '@tsed/common';
 import { PuppeteerService } from '../utils/puppeteer.service';
 
 import {
-    BookDepositoryDOMChangedException,
-    BookDepositoryAuthException
+    DepositoryDOMChangedException,
+    DepositoryAuthException
 } from '../../types/exceptions/book.exceptions';
 import { DepositoryWishlistItem } from '../../types/book/depository.type';
+import {
+    DEPOSITORY_SUCCESSFUL_LOGIN_MESSAGE,
+    DEPOSITORY_DOM_CHANGED_AUTO_LOGIN_FAIL_MESSAGE,
+    DEPOSITORY_DOM_CHANGED_LOGIN_NOT_FOUND_MESSAGE,
+    DEPOSITORY_AUTH_INVALID_CREDENTIALS_MESSAGE,
+    DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE,
+    DEPOSITORY_AUTH_CANNOT_LOG_OUT_IF_NOT_LOGGED_IN_MESSAGE,
+    DEPOSTIORY_SUCCESSFUL_LOGOUT_MESSAGE
+} from '../../types/exceptions/exceptions';
 
 @Service()
 export class DepositoryHeadlessService implements OnInit {
@@ -29,7 +38,7 @@ export class DepositoryHeadlessService implements OnInit {
 
     public async login(email: string, password: string, userId: string): Promise<string> {
         if (this.browserContextPages.find(page => page.id === userId)) {
-            return 'Successful login with given Google ID';
+            return DEPOSITORY_SUCCESSFUL_LOGIN_MESSAGE;
         }
 
         this.loginPage = await this.createBrowserContextPage(userId);
@@ -53,31 +62,31 @@ export class DepositoryHeadlessService implements OnInit {
             }, email, password);
         } catch (e) {
             this.closeCurrentLoginPage(userId);
-            throw new BookDepositoryDOMChangedException('Currrent selectors were unable to find the login form');
+            throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_LOGIN_NOT_FOUND_MESSAGE);
         }
 
         await this.loginPage.waitForNavigation();
 
         if (this.loginPage.url().indexOf('ap') !== -1) {
             this.closeCurrentLoginPage(userId);
-            throw new BookDepositoryDOMChangedException('Automated headless login failed');
+            throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_AUTO_LOGIN_FAIL_MESSAGE);
         }
 
         await this.loginPage.goto(this.depoWishlistURL);
 
         if (this.loginPage.url().indexOf('wishlist') === -1) {
             this.closeCurrentLoginPage(userId);
-            throw new BookDepositoryAuthException('Invalid credentials');
+            throw new DepositoryAuthException(DEPOSITORY_AUTH_INVALID_CREDENTIALS_MESSAGE);
         }
 
-        return 'Successful login with given Google ID';
+        return DEPOSITORY_SUCCESSFUL_LOGIN_MESSAGE;
     }
 
     public async getWishlistItems(userId: string): Promise<Array<DepositoryWishlistItem>> {
         this.loginPage = await this.getBrowserContextPageById(userId);
 
         if (!this.loginPage) {
-            throw new BookDepositoryAuthException('You are not logged in.');
+            throw new DepositoryAuthException(DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE);
         }
 
         await this.loginPage.goto(this.depoWishlistURL);
@@ -89,7 +98,7 @@ export class DepositoryHeadlessService implements OnInit {
         this.loginPage = await this.getBrowserContextPageById(userId);
 
         if (!this.loginPage) {
-            throw new BookDepositoryAuthException('You cannot log out, if you are not logged in.');
+            throw new DepositoryAuthException(DEPOSITORY_AUTH_CANNOT_LOG_OUT_IF_NOT_LOGGED_IN_MESSAGE);
         }
 
         await this.loginPage.evaluate(() => {
@@ -101,7 +110,7 @@ export class DepositoryHeadlessService implements OnInit {
     
         this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
 
-        return 'Successful logout with the given Google ID.';
+        return DEPOSTIORY_SUCCESSFUL_LOGOUT_MESSAGE;
     }
 
     private getWishlistFromDOM(): puppeteer.EvaluateFn {

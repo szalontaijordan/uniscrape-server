@@ -1,19 +1,15 @@
-import { CustomException } from './exception';
+import { GoogleException } from './exceptions';
 
-export class GoogleIdTokenInvalidException extends CustomException {
+export class GoogleIdTokenInvalidException extends GoogleException {
     
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
 
-export class GoogleTokenMissingException extends CustomException {
+export class GoogleIdTokenMissingException extends GoogleException {
 
-    constructor(public message: string) {
-        super();
+    constructor(message: string) {
+        super(message);
     }
 }
-
-export type GoogleException =
-    GoogleIdTokenInvalidException |
-    GoogleTokenMissingException;
