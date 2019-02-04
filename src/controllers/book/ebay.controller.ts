@@ -1,11 +1,8 @@
 import { Controller, Locals,  Get, UseBefore, PathParams } from '@tsed/common';
+import { InternalServerError, NotFound } from 'ts-httpexceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 
-import {
-    EbayCommonErrorResponse,
-    EbayEmptyResultsErrorResponse
-} from '../../types/error-responses/ebay.error-response';
 import { EbayAPIException } from '../../types/exceptions/book.exceptions';
 import { EbayBookList } from '../../types/book/ebay.type';
 
@@ -31,9 +28,9 @@ export class EbayController {
             return { books };
         } catch (e) {
             if (e instanceof EbayAPIException) {
-                throw new EbayCommonErrorResponse(e);
+                throw new InternalServerError(e.message);
             }
-            throw new EbayEmptyResultsErrorResponse(e);
+            throw new NotFound(e.message);
         } finally {
             this.statistics.sendSearchStatistics(searchTerm, userId);
         }

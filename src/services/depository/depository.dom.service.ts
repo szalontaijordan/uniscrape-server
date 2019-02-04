@@ -8,9 +8,10 @@ import { JSDOM } from 'jsdom';
 import { DepositoryBookItem } from '../../types/book/depository.type';
 
 import {
-    BookDepositoryDOMChangedException,
-    BookDepositoryEmptyResultsException
+    DepositoryDOMChangedException,
+    DepositoryEmptyResultsException
 } from '../../types/exceptions/book.exceptions';
+import { DEPOSITORY_DOM_CHANGED_MESSAGE, DEPOSITORY_EMPTY_RESULTS_MESSAGE } from '../../types/exceptions/exceptions';
 
 @Service()
 export class DepositoryDOMService implements OnInit {
@@ -34,7 +35,7 @@ export class DepositoryDOMService implements OnInit {
         
             return titles;
         } catch (e) {
-            throw new BookDepositoryDOMChangedException('Failed to scrape sections with the current CSS selector.');
+            throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_MESSAGE);
         }
     }
 
@@ -125,7 +126,7 @@ export class DepositoryDOMService implements OnInit {
 
     private mapElementsToBookItems(books: NodeListOf<Element> | HTMLCollectionOf<Element>): Array<DepositoryBookItem> {
         if (!books.length) {
-            throw new BookDepositoryEmptyResultsException('The list of the books scraped by the current selector is empty.');
+            throw new DepositoryEmptyResultsException(DEPOSITORY_EMPTY_RESULTS_MESSAGE);
         }
 
         return _.map(_.toArray(books), (book: Element) => {
