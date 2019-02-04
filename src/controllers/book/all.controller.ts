@@ -10,14 +10,14 @@ export class AllController {
     constructor(private statistics: StatisticsService) {
     }
 
-    @Get('/all/recent')
+    @Get('/recent')
     @UseBefore(GoogleMiddleware)
     public async getRecentSearches(@Locals('userId') userId: string): Promise<SearchHistory> {
         const recentSearches = await this.statistics.getSearchStatistics(userId);
         return { recentSearches };
     }
 
-    @Get('/all/auth')
+    @Get('/auth')
     @UseBefore(GoogleMiddleware)
     public async getAuth(@Locals('userId') userId: string): Promise<TrueMessage> {
         return { message: 'true' };

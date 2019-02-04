@@ -4,16 +4,18 @@ import { InternalServerError, NotFound } from 'ts-httpexceptions';
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 
 import { EbayAPIException } from '../../types/exceptions/book.exceptions';
-import { EbayBookList } from '../../types/book/ebay.type';
 
 import { EbayApiService } from '../../services/ebay/ebay.api.service';
 import { StatisticsService } from '../../services/utils/statistics.service';
+import { CommonBookList } from '../../types/book/all.type';
+import { BookTransformerService } from '../../services/utils/book-transformer.service';
 
 @Controller('/book/ebay')
 export class EbayController {
 
     constructor(private statistics: StatisticsService,
-                private ebayApi: EbayApiService) {
+                private ebayApi: EbayApiService,
+                private bookTransformer: BookTransformerService) {
     }
 
     @Get('/search/:searchTerm')
@@ -22,10 +24,10 @@ export class EbayController {
     public async getEbaySearchResults(
         @PathParams('searchTerm') searchTerm: string,
         @PathParams('page') page: number = 1,
-        @Locals('userId') userId: string): Promise<EbayBookList> {
+        @Locals('userId') userId: string): Promise<CommonBookList> {
         try {
             const books = await this.ebayApi.getEbaySearch(searchTerm, page);
-            return { books };
+            return { books: books.map(this.bookTransformer.transformEbayToCommon) };
         } catch (e) {
             if (e instanceof EbayAPIException) {
                 throw new InternalServerError(e.message);
