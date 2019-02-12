@@ -1,4 +1,4 @@
-import { AmazonException, DepositoryException, EbayException } from './exceptions';
+import { AmazonException, DepositoryException, EbayException, WishlistException } from './exceptions';
 
 export class DepositoryDOMChangedException extends DepositoryException {
     
@@ -43,6 +43,13 @@ export class AmazonDOMChangedException extends AmazonException {
 }
 
 export class AmazonEmptyResultsException extends AmazonException {
+
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class BookItemAlreadyOnWishlistException extends WishlistException {
 
     constructor(message: string) {
         super(message);

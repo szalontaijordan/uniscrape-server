@@ -17,6 +17,8 @@ export const EBAY_EMPTY_RESULTS_MESSAGE = 'The result list is empty';
 export const GOOGLE_ID_TOKEN_MISSING_MESSAGE = 'You must provide a valid Google ID token';
 export const GOOGLE_ID_TOKEN_INVALID_MESSAGE = 'The provided Google ID Token is invalid';
 
+export const BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE = 'The selected book is already on the wishlist';
+
 export class CustomException {
 
     constructor(...args: Array<any>) {
@@ -47,6 +49,13 @@ export class EbayException extends CustomException {
 
 export class GoogleException extends CustomException {
     
+    constructor(public message: string) {
+        super();
+    }
+}
+
+export class WishlistException extends CustomException {
+
     constructor(public message: string) {
         super();
     }

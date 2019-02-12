@@ -25,6 +25,7 @@
     "@types/jsdom": "^12.2.1",
     "@types/lodash": "^4.14.119",
     "@types/mongodb": "^3.1.19",
+    "@types/mongoose": "^5.3.12",
     "@types/node-fetch": "^2.1.4",
     "@types/puppeteer": "^1.11.1",
     "tsc-watch": "^1.0.31",
@@ -38,8 +39,10 @@
     "lodash": "^4.17.11",
     "microdata-node": "^1.0.0",
     "mongodb": "^3.1.10",
+    "mongoose": "^5.4.11",
     "node-fetch": "^2.3.0",
     "puppeteer": "^1.11.0",
-    "ts-httpexceptions": "^3.1.1"
+    "ts-httpexceptions": "^3.1.1",
+    "typegoose": "^5.5.0"
   }
 }
