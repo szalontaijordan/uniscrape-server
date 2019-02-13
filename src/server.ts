@@ -1,9 +1,11 @@
 import * as Path from 'path';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
+import * as mongoose from 'mongoose';
 
 import { ServerLoader, ServerSettings } from '@tsed/common';
 import { ErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
+import { config } from '../config/vars';
 
 @ServerSettings({
     rootDir: Path.resolve(__dirname),
@@ -15,6 +17,8 @@ import { ErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
     httpsPort: process.env.PORT || 8000,
 })
 export class Server extends ServerLoader {
+
+    private db: mongoose.Connection;
 
     public $onMountingMiddlewares(): void {
         this.use(bodyParser.json())
@@ -42,6 +46,7 @@ export class Server extends ServerLoader {
 
     public $afterRoutesInit(): void {
         this.use(ErrorHandlerMiddleware);
+        this.connectDB();
     }
 
     public $onReady(): void {
@@ -50,5 +55,13 @@ export class Server extends ServerLoader {
 
     public $onServerInitError(err: any): void {
         console.error(err);
+    }
+
+    private connectDB(): void {
+        mongoose.connect(config.db.testURI);
+        
+        this.db = mongoose.connection;
+        this.db.on('error', err => { throw err; });
+        this.db.once('open', () => console.log('MongoDB connected to test URI'));
     }
 }

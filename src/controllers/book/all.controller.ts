@@ -1,4 +1,4 @@
-import { Controller, Locals,  Get, UseBefore } from '@tsed/common';
+import { Controller, Locals,  Get, UseBefore, Post } from '@tsed/common';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 import { StatisticsService } from '../../services/utils/statistics.service';
@@ -10,11 +10,11 @@ export class AllController {
     constructor(private statistics: StatisticsService) {
     }
 
-    @Get('/recent')
+    @Get('/searchHistory')
     @UseBefore(GoogleMiddleware)
     public async getRecentSearches(@Locals('userId') userId: string): Promise<SearchHistory> {
         const recentSearches = await this.statistics.getSearchStatistics(userId);
-        return { recentSearches };
+        return recentSearches;
     }
 
     @Get('/auth')

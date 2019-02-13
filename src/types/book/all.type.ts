@@ -1,5 +1,8 @@
 export interface SearchHistory {
-    recentSearches: Array<string>;
+    recentSearches: Array<{
+        term: string;
+        date: Date;
+    }>;
 }
 
 export interface TrueMessage {
