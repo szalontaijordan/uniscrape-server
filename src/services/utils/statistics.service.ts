@@ -1,32 +1,45 @@
 import { Service, OnInit } from '@tsed/common';
-import { DatabaseService } from './db.service';
+import { SearchHistory } from '../../types/book/all.type';
+import { SearchHistoryItemModel } from '../../models/search-history-item';
 
 @Service()
 export class StatisticsService implements OnInit {
     
-    constructor(private db: DatabaseService) {
+    constructor() {
     }
     
     public $onInit(): void {
     }
 
     public async sendSearchStatistics(searchTerm: string, userId: string): Promise<void> {
-        const stats = await this.db.getSearchStatistics();
-        const currentStats = await stats.find({ userId }).toArray();
-        const existingArray = currentStats[0].searchArray;
+        const history = await SearchHistoryItemModel.findOne({ userId });
+        const { recentSearches } = history.searchHistory;
+
+        if (recentSearches.map(item => item.term).indexOf(searchTerm) >= 0) {
+            return;
+        }
     
-        const newArray = Array
-            .from(new Set([decodeURIComponent(searchTerm), ...existingArray]))
-            .slice(0, 15);
-    
-        await stats.updateOne({ userId }, { $set: { searchArray: newArray } });
+        history.searchHistory = {
+            ...history.searchHistory,
+            recentSearches: [ { term: searchTerm, date: new Date() }, ...recentSearches ].slice(0, 20)
+        };
+
+        await history.save();
     }
 
-    public async getSearchStatistics(userId: string): Promise<Array<string>> {
-        const stats = await this.db.getSearchStatistics();
-        const currentStats = await stats.find({ userId }).toArray();
-        const recentSearches = currentStats[0].searchArray;
+    public async getSearchStatistics(userId: string): Promise<SearchHistory> {
+        const history = await SearchHistoryItemModel.findOne({ userId });
 
-        return recentSearches;
+        if (!history) {
+            await this.createSearchStatistics(userId);
+            return { recentSearches: [] };
+        }
+
+        return history.searchHistory;
+    }
+
+    private async createSearchStatistics(userId: string): Promise<void> {
+        const history = new SearchHistoryItemModel({ userId, searchHistory: { recentSearches: [] } });
+        await history.save();
     }
 }
