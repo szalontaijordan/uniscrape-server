@@ -13,17 +13,26 @@ export class WishlistService implements OnInit {
     }
 
     public async getBookItemsOnInternalWishlist(userId: string): Promise<Array<CommonBookItem>> {
-        const internalWishlist = await this.db.getInternalWishlist();
-        const entities = await internalWishlist.find({ userId }).toArray();
-        const books = entities.map((entity: any & { bookItem: CommonBookItem }) => entity.bookItem);
+        const internalWishlist = await this.db.getInternalWishlist(userId);
 
-        return books;
+        if (!internalWishlist) {
+            await this.db.createWishlist(userId);
+            return [];
+        }
+
+        return internalWishlist.bookList.books;
     }
 
     public async addBookItemToInternalWishlist(bookItem: CommonBookItem, userId: string): Promise<CommonBookItem> {
-        const internalWishlist = await this.db.getInternalWishlist();
-        await internalWishlist.insertOne({ userId, bookItem });
-
+        await this.db.addBookToWishlist(userId, bookItem);
         return bookItem;
+    }
+
+    public async deleteBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<void> {
+        await this.db.deleteBookItemFromWishlist(userId, ISBN);
+    }
+
+    public async getBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<CommonBookItem> {
+        return await this.db.getBookItemByISBN(userId, ISBN);
     }
 }
