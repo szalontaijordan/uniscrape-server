@@ -16,7 +16,22 @@ export class BookTransformerService implements OnInit {
     }
 
     public transformDepositoryToCommon(book: DepositoryBookItem): CommonBookItem {
-        const { ISBN, title, author, image, currentPrice, published, linkToBook } = book;
+        let { ISBN, title, author, image, currentPrice, published, linkToBook } = book;
+
+        if (!currentPrice) {
+            currentPrice = 999999;
+        }
+
+        if (!author) {
+            author = {
+                name: 'BOOKDEPOSITORY-UNKNOWN-AUTHOR',
+                url: 'javascript:void(0)',
+            }    
+        }
+
+        if (!linkToBook) {
+            linkToBook = 'javascript:void(0)'
+        }
 
         return {
             ISBN,
@@ -65,7 +80,18 @@ export class BookTransformerService implements OnInit {
     }
 
     public transformDepositoryWishlistToCommon(book: DepositoryWishlistItem): CommonBookItem {
-        const { url, title, author, image, currentPrice } = book;
+        let { url, title, author, image, currentPrice } = book;
+
+        if (!currentPrice) {
+            currentPrice = 999999;
+        }
+
+        if (!author) {
+            author = {
+                name: 'BOOKDEPOSITORY-UNKNOWN-AUTHOR',
+                url: 'javascript:void(0)',
+            }    
+        }
 
         return {
             ISBN: url.substring(url.lastIndexOf('/') + 1),
