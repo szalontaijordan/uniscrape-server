@@ -5,8 +5,8 @@ import { config } from '../../../config/vars';
 import { WishlistItemModel, WishlistItem } from '../../models/wishlist-item';
 import { InstanceType } from 'typegoose';
 import { CommonBookItem } from '../../types/book/all.type';
-import { BookItemAlreadyOnWishlistException } from '../../types/exceptions/book.exceptions';
-import { BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE } from '../../types/exceptions/exceptions';
+import { BookItemAlreadyOnWishlistException, BookItemIsNotOnWishlistException } from '../../types/exceptions/book.exceptions';
+import { BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE, BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE } from '../../types/exceptions/exceptions';
 
 @Service()
 export class DatabaseService implements OnInit {
@@ -57,8 +57,19 @@ export class DatabaseService implements OnInit {
             await wishlist.save();
             return;
         }
-// TODO: write exception to book item not being on wishlist
-        throw new BookItemAlreadyOnWishlistException(BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE);
+
+        throw new BookItemIsNotOnWishlistException(BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE);
+    }
+
+    public async getBookItemByISBN(userId: string, ISBN: string): Promise<CommonBookItem> {
+        const wishlist = await this.getInternalWishlist(userId);
+        const isBookAlreadyOnWishlist = wishlist.bookList.books.map(book => book.ISBN).indexOf(ISBN) >= 0;
+
+        if (isBookAlreadyOnWishlist) {
+            return wishlist.bookList.books.find(book => book.ISBN === ISBN);
+        }
+
+        throw new BookItemIsNotOnWishlistException(BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE);
     }
 
     public async getSearchStatistics(): Promise<any> {

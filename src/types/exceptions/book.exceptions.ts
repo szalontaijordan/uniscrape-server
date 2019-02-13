@@ -55,4 +55,10 @@ export class BookItemAlreadyOnWishlistException extends WishlistException {
         super(message);
     }
 }
-    
+
+export class BookItemIsNotOnWishlistException extends WishlistException {
+
+    constructor(message: string) {
+        super(message);
+    }
+}   

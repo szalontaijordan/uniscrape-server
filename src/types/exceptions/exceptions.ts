@@ -18,6 +18,7 @@ export const GOOGLE_ID_TOKEN_MISSING_MESSAGE = 'You must provide a valid Google 
 export const GOOGLE_ID_TOKEN_INVALID_MESSAGE = 'The provided Google ID Token is invalid';
 
 export const BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE = 'The selected book is already on the wishlist';
+export const BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE = 'The selected book is not on the wishlist';
 
 export class CustomException {
 

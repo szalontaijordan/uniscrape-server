@@ -31,4 +31,8 @@ export class WishlistService implements OnInit {
     public async deleteBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<void> {
         await this.db.deleteBookItemFromWishlist(userId, ISBN);
     }
+
+    public async getBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<CommonBookItem> {
+        return await this.db.getBookItemByISBN(userId, ISBN);
+    }
 }

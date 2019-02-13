@@ -14,10 +14,11 @@ export class ErrorHandlerMiddleware implements IMiddlewareError {
             return next(error);
         }
 
-        console.log(JSON.stringify(error, null, 2));
+        const errorResponse = { ...error, message: error.message };
+        console.log(JSON.stringify(errorResponse, null, 2));
 
         if (error instanceof HttpException) {
-            response.status(error.status).send(error);
+            response.status(error.status).send(errorResponse);
         } else {
             response.status(500).send(new InternalServerError('Internal error'));
         }
