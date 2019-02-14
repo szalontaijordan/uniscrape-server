@@ -62,3 +62,10 @@ export class BookItemIsNotOnWishlistException extends WishlistException {
         super(message);
     }
 }   
+
+export class InvalidSearchTermException extends DepositoryException {
+
+    constructor(message: string) {
+        super(message);
+    }
+}

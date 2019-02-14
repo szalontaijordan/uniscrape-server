@@ -1,5 +1,5 @@
 import { BodyParams, Controller, Locals, Post,  Get, Required, UseBefore, PathParams } from '@tsed/common';
-import { InternalServerError, NotFound, Unauthorized } from 'ts-httpexceptions';
+import { InternalServerError, NotFound, Unauthorized, BadRequest } from 'ts-httpexceptions';
 
 import { DepositoryDOMService } from '../../services/depository/depository.dom.service';
 import { DepositoryHeadlessService } from '../../services/depository/depository.headless.service';
@@ -10,10 +10,11 @@ import {
     DepositorySectionList,
     DepositoryAuthMessage,
 } from '../../types/book/depository.type';
-import { DepositoryEmptyResultsException, DepositoryDOMChangedException } from '../../types/exceptions/book.exceptions';
+import { DepositoryEmptyResultsException, DepositoryDOMChangedException, InvalidSearchTermException } from '../../types/exceptions/book.exceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
-import { CommonBookList } from '../../types/book/all.type';
+import { CommonBookList, CommonBookItem } from '../../types/book/all.type';
+import { INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE } from '../../types/exceptions/exceptions';
 
 @Controller('/book/depository')
 export class DepositoryController {
@@ -22,6 +23,16 @@ export class DepositoryController {
                 private depoHeadless: DepositoryHeadlessService,
                 private statistics: StatisticsService,
                 private bookTransformer: BookTransformerService) {
+    }
+
+    @Get('/:ISBN')
+    public async getBookByISBN(@PathParams('ISBN') ISBN: string): Promise<CommonBookItem> {
+        try {
+            const book = await this.depoDom.getDepositoryBookByISBN(ISBN);
+            return this.bookTransformer.transformDepositoryToCommon(book);
+        } catch(e) {
+            throw new BadRequest(e.message);
+        }
     }
 
     @Get('/sections')
@@ -53,11 +64,17 @@ export class DepositoryController {
         @PathParams('page') page: number = 1,
         @Locals('userId') userId: string): Promise<CommonBookList> {
         try {
+            if (!!Number(searchTerm)) {
+                throw new InvalidSearchTermException(INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE);
+            }
             const books = await this.depoDom.getDepositorySearch(searchTerm, page);
             return { books: books.map(this.bookTransformer.transformDepositoryToCommon) };
         } catch (e) {
             if (e instanceof DepositoryEmptyResultsException) {
                 throw new NotFound(e.message);
+            }
+            if (e instanceof InvalidSearchTermException) {
+                throw new BadRequest(e.message);
             }
             throw new InternalServerError(e.message);
         } finally {
