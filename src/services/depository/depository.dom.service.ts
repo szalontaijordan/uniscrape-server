@@ -11,7 +11,9 @@ import {
     DepositoryDOMChangedException,
     DepositoryEmptyResultsException
 } from '../../types/exceptions/book.exceptions';
-import { DEPOSITORY_DOM_CHANGED_MESSAGE, DEPOSITORY_EMPTY_RESULTS_MESSAGE } from '../../types/exceptions/exceptions';
+import { DEPOSITORY_DOM_CHANGED_MESSAGE, DEPOSITORY_EMPTY_RESULTS_MESSAGE, InvalidISBNException, INVALID_ISBN_MESSAGE } from '../../types/exceptions/exceptions';
+
+import { config } from '../../../config/vars';
 
 @Service()
 export class DepositoryDOMService implements OnInit {
@@ -63,6 +65,24 @@ export class DepositoryDOMService implements OnInit {
         const books = document.getElementsByClassName('book-item');
 
         return this.mapElementsToBookItems(books);
+    }
+
+    public async getDepositoryBookByISBN(ISBN: string): Promise<DepositoryBookItem> {
+        if (!this.isValidISBN(ISBN)) {
+            throw new InvalidISBNException(INVALID_ISBN_MESSAGE);
+        }
+        const url = this.depoSearchURL
+            .replace('#SEARCHTERM#', ISBN)
+            .replace('#PAGE#', '');
+        const html = await fetch(url);
+
+        const window = new JSDOM(await html.text()).window;
+        const book = window.document.getElementsByClassName('item-wrap');
+
+        return {
+            ...this.mapElementsToBookItems(book)[0],
+            linkToBook: url
+        };
     }
 
     private generateAdditionalMetadataFor(book: Element): string {
@@ -135,5 +155,9 @@ export class DepositoryDOMService implements OnInit {
 
             return bookItem;
         });
+    }
+
+    private isValidISBN(ISBN: string): boolean {
+        return !!config.regex.ISBN_VALIDATOR.exec(ISBN);
     }
 }

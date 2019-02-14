@@ -20,6 +20,11 @@ export const GOOGLE_ID_TOKEN_INVALID_MESSAGE = 'The provided Google ID Token is 
 export const BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE = 'The selected book is already on the wishlist';
 export const BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE = 'The selected book is not on the wishlist';
 
+export const INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE = 'Search term should not be a number, searching by ISBN can be done'
+    + ' with GET /api/book/depository/:ISBN';
+
+export const INVALID_ISBN_MESSAGE = 'Invalid ISBN code';
+
 export class CustomException {
 
     constructor(...args: Array<any>) {
@@ -56,6 +61,13 @@ export class GoogleException extends CustomException {
 }
 
 export class WishlistException extends CustomException {
+
+    constructor(public message: string) {
+        super();
+    }
+}
+
+export class InvalidISBNException extends CustomException {
 
     constructor(public message: string) {
         super();
