@@ -21,7 +21,7 @@ export const BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE = 'The selected book is alrea
 export const BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE = 'The selected book is not on the wishlist';
 
 export const INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE = 'Search term should not be a number, searching by ISBN can be done'
-    + ' with GET /api/book/depository/:ISBN';
+    + ' with GET /api/book/depository/item/:ISBN';
 
 export const INVALID_ISBN_MESSAGE = 'Invalid ISBN code';
 

@@ -25,7 +25,7 @@ export class DepositoryController {
                 private bookTransformer: BookTransformerService) {
     }
 
-    @Get('/:ISBN')
+    @Get('/item/:ISBN')
     public async getBookByISBN(@PathParams('ISBN') ISBN: string): Promise<CommonBookItem> {
         try {
             const book = await this.depoDom.getDepositoryBookByISBN(ISBN);
