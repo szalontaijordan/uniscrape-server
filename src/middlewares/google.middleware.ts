@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { Middleware, IMiddleware, Request, Response, Next } from '@tsed/common';
-import { Unauthorized, BadRequest, InternalServerError } from 'ts-httpexceptions';
+import { BadRequest, InternalServerError, Forbidden } from 'ts-httpexceptions';
 
 import {
     GoogleIdTokenInvalidException,
@@ -30,7 +30,7 @@ export class GoogleMiddleware implements IMiddleware {
                 throw new BadRequest(e.message);                
             }
             if (e instanceof GoogleIdTokenInvalidException) {
-                throw new Unauthorized(e.message);
+                throw new Forbidden(e.message);
             }
             throw new InternalServerError(e.mesasge);
         }

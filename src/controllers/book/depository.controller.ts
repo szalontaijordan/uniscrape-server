@@ -13,7 +13,9 @@ import {
 import { DepositoryEmptyResultsException, DepositoryDOMChangedException, InvalidSearchTermException } from '../../types/exceptions/book.exceptions';
 
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
-import { CommonBookList, CommonBookItem } from '../../types/book/all.type';
+import { DepositoryMiddleware } from '../../middlewares/depository.middleware';
+
+import { CommonBookList, CommonBookItem, TrueMessage } from '../../types/book/all.type';
 import { INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE } from '../../types/exceptions/exceptions';
 
 @Controller('/book/depository')
@@ -82,6 +84,13 @@ export class DepositoryController {
         }
     }
 
+    @Get('/auth')
+    @UseBefore(GoogleMiddleware)
+    @UseBefore(DepositoryMiddleware)
+    public async getDepositoryAuth(@Locals('userId') userId: string): Promise<TrueMessage> {
+        return { message: 'true' };
+    }
+
     @Post('/auth/login')
     @UseBefore(GoogleMiddleware)
     public async postLoginToDepository(
@@ -98,6 +107,7 @@ export class DepositoryController {
 
     @Post('/auth/logout')
     @UseBefore(GoogleMiddleware)
+    @UseBefore(DepositoryMiddleware)
     public async postLogoutFromDepository(@Locals('userId') userId: string): Promise<DepositoryAuthMessage> {
         try {
             const success = await this.depoHeadless.logout(userId);
@@ -110,6 +120,7 @@ export class DepositoryController {
 
     @Get('/wishlist')
     @UseBefore(GoogleMiddleware)
+    @UseBefore(DepositoryMiddleware)
     public async getDepositoryWishlist(@Locals('userId') userId: string): Promise<CommonBookList> {
         try {
             const books = await this.depoHeadless.getWishlistItems(userId);
