@@ -85,10 +85,6 @@ export class DepositoryHeadlessService implements OnInit {
     public async getWishlistItems(userId: string): Promise<Array<DepositoryWishlistItem>> {
         this.loginPage = await this.getBrowserContextPageById(userId);
 
-        if (!this.loginPage) {
-            throw new DepositoryAuthException(DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE);
-        }
-
         await this.loginPage.goto(this.depoWishlistURL);
 
         return this.loginPage.evaluate(this.getWishlistFromDOM());
@@ -96,10 +92,6 @@ export class DepositoryHeadlessService implements OnInit {
 
     public async logout(userId: string): Promise<string> {
         this.loginPage = await this.getBrowserContextPageById(userId);
-
-        if (!this.loginPage) {
-            throw new DepositoryAuthException(DEPOSITORY_AUTH_CANNOT_LOG_OUT_IF_NOT_LOGGED_IN_MESSAGE);
-        }
 
         await this.loginPage.evaluate(() => {
             const logoutLink = Array.from(document.getElementsByTagName('a')).find(a => a.innerText === 'Sign out');
@@ -111,6 +103,14 @@ export class DepositoryHeadlessService implements OnInit {
         this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
 
         return DEPOSTIORY_SUCCESSFUL_LOGOUT_MESSAGE;
+    }
+
+    public async isLoggedIn(userId: string): Promise<boolean> {
+        const page = await this.getBrowserContextPageById(userId);
+        if (!page) {
+            throw new DepositoryAuthException(DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE);
+        }
+        return true;
     }
 
     private getWishlistFromDOM(): puppeteer.EvaluateFn {
