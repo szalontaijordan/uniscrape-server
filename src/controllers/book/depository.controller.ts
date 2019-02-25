@@ -85,8 +85,7 @@ export class DepositoryController {
     }
 
     @Get('/auth')
-    @UseBefore(GoogleMiddleware)
-    @UseBefore(DepositoryMiddleware)
+    @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async getDepositoryAuth(@Locals('userId') userId: string): Promise<TrueMessage> {
         return { message: 'true' };
     }
@@ -106,8 +105,7 @@ export class DepositoryController {
     }
 
     @Post('/auth/logout')
-    @UseBefore(GoogleMiddleware)
-    @UseBefore(DepositoryMiddleware)
+    @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async postLogoutFromDepository(@Locals('userId') userId: string): Promise<DepositoryAuthMessage> {
         try {
             const success = await this.depoHeadless.logout(userId);
@@ -119,8 +117,7 @@ export class DepositoryController {
 
 
     @Get('/wishlist')
-    @UseBefore(GoogleMiddleware)
-    @UseBefore(DepositoryMiddleware)
+    @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async getDepositoryWishlist(@Locals('userId') userId: string): Promise<CommonBookList> {
         try {
             const books = await this.depoHeadless.getWishlistItems(userId);
