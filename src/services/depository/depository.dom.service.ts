@@ -96,7 +96,10 @@ export class DepositoryDOMService implements OnInit {
         
         if (image) {
             image.setAttribute('itemprop', 'image');
-            image.setAttribute('src', image.getAttribute('data-lazy'));
+
+            if (image.getAttribute('data-lazy')) {
+                image.setAttribute('src', image.getAttribute('data-lazy'));
+            }
         }
         
         if (price) {
@@ -132,7 +135,7 @@ export class DepositoryDOMService implements OnInit {
 
         if (props.author) {
             bookItem.author = {
-                name: props.author[0].properties.name[0],
+                name: props.author[0].properties.name[0].trim(),
                 url: props.author[0].properties.url[0],
             }    
         }

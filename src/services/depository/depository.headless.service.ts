@@ -15,7 +15,6 @@ import {
     DEPOSITORY_DOM_CHANGED_LOGIN_NOT_FOUND_MESSAGE,
     DEPOSITORY_AUTH_INVALID_CREDENTIALS_MESSAGE,
     DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE,
-    DEPOSITORY_AUTH_CANNOT_LOG_OUT_IF_NOT_LOGGED_IN_MESSAGE,
     DEPOSTIORY_SUCCESSFUL_LOGOUT_MESSAGE
 } from '../../types/exceptions/exceptions';
 
@@ -24,8 +23,6 @@ export class DepositoryHeadlessService implements OnInit {
 
     private depoLoginURL = 'https://www.bookdepository.com/account/login/to/account';
     private depoWishlistURL = 'https://www.bookdepository.com/account/wishlist';
-
-    private loginPage: puppeteer.Page;
 
     private browserContextPages: Array<{ id: string, page: puppeteer.Page }>;
 
@@ -41,12 +38,11 @@ export class DepositoryHeadlessService implements OnInit {
             return DEPOSITORY_SUCCESSFUL_LOGIN_MESSAGE;
         }
 
-        this.loginPage = await this.createBrowserContextPage(userId);
-        
-        await this.loginPage.waitForSelector('iframe.signin-iframe');
+        const loginPage = await this.createBrowserContextPage(userId);
+        await loginPage.waitForSelector('iframe.signin-iframe');
 
         try {
-            await this.loginPage.evaluate((email, password) => {
+            await loginPage.evaluate((email, password) => {
                 const frame = document.getElementsByClassName('signin-iframe')[0]['contentWindow']['document'];
                 
                 const emailInput = frame.getElementById('ap_email');
@@ -65,16 +61,16 @@ export class DepositoryHeadlessService implements OnInit {
             throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_LOGIN_NOT_FOUND_MESSAGE);
         }
 
-        await this.loginPage.waitForNavigation();
+        await loginPage.waitForNavigation();
 
-        if (this.loginPage.url().indexOf('ap') !== -1) {
+        if (loginPage.url().indexOf('ap') !== -1) {
             this.closeCurrentLoginPage(userId);
             throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_AUTO_LOGIN_FAIL_MESSAGE);
         }
 
-        await this.loginPage.goto(this.depoWishlistURL);
+        await loginPage.goto(this.depoWishlistURL);
 
-        if (this.loginPage.url().indexOf('wishlist') === -1) {
+        if (loginPage.url().indexOf('wishlist') === -1) {
             this.closeCurrentLoginPage(userId);
             throw new DepositoryAuthException(DEPOSITORY_AUTH_INVALID_CREDENTIALS_MESSAGE);
         }
@@ -83,22 +79,21 @@ export class DepositoryHeadlessService implements OnInit {
     }
 
     public async getWishlistItems(userId: string): Promise<Array<DepositoryWishlistItem>> {
-        this.loginPage = await this.getBrowserContextPageById(userId);
+        const loginPage = await this.getBrowserContextPageById(userId);
+        await loginPage.goto(this.depoWishlistURL);
 
-        await this.loginPage.goto(this.depoWishlistURL);
-
-        return this.loginPage.evaluate(this.getWishlistFromDOM());
+        return loginPage.evaluate(this.getWishlistFromDOM());
     }
 
     public async logout(userId: string): Promise<string> {
-        this.loginPage = await this.getBrowserContextPageById(userId);
+        const loginPage = await this.getBrowserContextPageById(userId);
 
-        await this.loginPage.evaluate(() => {
+        await loginPage.evaluate(() => {
             const logoutLink = Array.from(document.getElementsByTagName('a')).find(a => a.innerText === 'Sign out');
             logoutLink.click();
         });
-        await this.loginPage.waitForNavigation();
-        await this.loginPage.close();
+        await loginPage.waitForNavigation();
+        await loginPage.close();
     
         this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
 
@@ -161,7 +156,8 @@ export class DepositoryHeadlessService implements OnInit {
     }
 
     private async closeCurrentLoginPage(userId: string): Promise<void> {
-        await this.loginPage.close();
+        const loginPage = await this.getBrowserContextPageById(userId);
+        loginPage.close();
         this.browserContextPages = this.browserContextPages.filter(page => page.id !== userId);
     }
 }

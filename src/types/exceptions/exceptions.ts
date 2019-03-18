@@ -8,7 +8,6 @@ export const DEPOSITORY_DOM_CHANGED_LOGIN_NOT_FOUND_MESSAGE = 'Currrent selector
 export const DEPOSITORY_DOM_CHANGED_AUTO_LOGIN_FAIL_MESSAGE = 'Automated headless login failed';
 export const DEPOSITORY_AUTH_INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials';
 export const DEPOSITORY_AUTH_NOT_LOGGED_IN_MESSAGE = 'You are not logged in';
-export const DEPOSITORY_AUTH_CANNOT_LOG_OUT_IF_NOT_LOGGED_IN_MESSAGE = 'You cannot log out, if you are not logged in';
 export const DEPOSTIORY_SUCCESSFUL_LOGOUT_MESSAGE = 'Successful logout with the given Google ID';
 
 export const EBAY_API_ERROR_MESSAGE = 'There was a problem with the Ebay API call';
