@@ -7,7 +7,7 @@
     "dev": "tsc-watch --onSuccess \"node app.js\"",
     "build": "npm run tsc",
     "coverage": "npm run test-cov && npm run test-remap",
-    "preinstall": "npm i -g reflect-metadata",
+    "preinstall": "npm i -g reflect-metadata && npm install @types/node",
     "postinstall": "npm run build",
     "tslint": "tslint ./*.ts ./lib/*.ts",
     "test": "echo \"No tests!\" && exit 1",
