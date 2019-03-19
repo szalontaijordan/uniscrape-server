@@ -19,8 +19,6 @@
   "author": "Szalontai Jordán",
   "license": "ISC",
   "devDependencies": {
-    "@tsed/common": "^4.32.2",
-    "@tsed/core": "^4.32.2",
     "@types/cron": "^1.6.1",
     "@types/express": "^4.16.0",
     "@types/http-status": "^0.2.30",
@@ -33,6 +31,8 @@
     "@types/puppeteer": "^1.11.1"
   },
   "dependencies": {
+    "@tsed/common": "^4.32.2",
+    "@tsed/core": "^4.32.2",
     "tsc-watch": "1.0.31",
     "typescript": "3.2.2",
     "cron": "^1.6.0",
