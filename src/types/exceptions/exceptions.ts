@@ -24,6 +24,8 @@ export const INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE = 'Search term should not be 
 
 export const INVALID_ISBN_MESSAGE = 'Invalid ISBN code';
 
+export const SUBSCIPTION_NOT_FOUND_MESSAGE = 'Subscription not found';
+
 export class CustomException {
 
     constructor(...args: Array<any>) {

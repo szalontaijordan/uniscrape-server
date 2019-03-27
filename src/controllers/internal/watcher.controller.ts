@@ -1,9 +1,10 @@
 import * as express from 'express';
 
-import { Controller, Locals, Post, UseBefore, Delete, BodyParams, Response, Required, } from '@tsed/common';
+import { Controller, Locals, Post, UseBefore, Delete, BodyParams, Response, Required, Get, } from '@tsed/common';
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 import { WatcherService } from '../../services/utils/watcher.service';
 import { TrueMessage } from '../../types/book/all.type';
+import { NotFound } from 'ts-httpexceptions';
 
 @Controller('/internal')
 export class WatcherController {
@@ -11,9 +12,22 @@ export class WatcherController {
     constructor(private watcherService: WatcherService) {
     }
 
-    @Post('/watcher/subscribe')
+    @Get('/watcher/subscription')
     @UseBefore(GoogleMiddleware)
-    public async postSubscribeToWatcher(
+    public async getWatcherSubscription(
+        @Locals('userId') userId: string,
+        @Response() res: express.Response): Promise<TrueMessage> {
+        try {
+            await this.watcherService.getSubscription(userId);
+            return { message: 'true' };
+        } catch (e) {
+            throw new NotFound(e.message);
+        }
+    }
+
+    @Post('/watcher/subscription')
+    @UseBefore(GoogleMiddleware)
+    public async postWatcherSubscription(
         @Locals('userId') userId: string,
         @Required() @BodyParams('email') email: string,
         @Response() res: express.Response): Promise<TrueMessage> {
@@ -22,9 +36,9 @@ export class WatcherController {
         return { message: 'true' };
     }
 
-    @Delete('/watcher/unsubscribe')
+    @Delete('/watcher/subscription')
     @UseBefore(GoogleMiddleware)
-    public async postUnsubscribeFromWatcher(
+    public async deleteWatcherSubscription(
         @Locals('userId') userId: string,
         @Required() @BodyParams('email') email: string,
         @Response() res: express.Response): Promise<TrueMessage> {
