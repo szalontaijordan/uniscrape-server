@@ -27,6 +27,7 @@ export class Server extends ServerLoader {
         this.use(bodyParser.json())
             .use(bodyParser.urlencoded({ extended: true }))
             .use(express.static(Path.join(__dirname, '..', '/public')))
+            .use('/doc', express.static(Path.join(__dirname, '..', '/docs')))
             .use(this.CORS())
             .use(this.defaultIndexHTML());
     }
@@ -72,7 +73,9 @@ export class Server extends ServerLoader {
 
     private defaultIndexHTML(): Function {
         return (req, res, next) => {
-            if (!(req.originalUrl.indexOf('/api') === 0)) {
+            if (req.originalUrl === '/doc') {
+                res.sendFile(Path.join(__dirname, '..', '/docs/index.html'));
+            } else if (!(req.originalUrl.indexOf('/api') === 0)) {
                 res.sendFile(Path.join(__dirname, '..', '/public/index.html'));
             } else {
                 next();

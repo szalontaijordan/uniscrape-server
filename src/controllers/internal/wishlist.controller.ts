@@ -8,13 +8,23 @@ import { WishlistService } from '../../services/utils/wishlist.service';
 import { CommonBookList, CommonBookItem, TrueMessage } from '../../types/book/all.type';
 import { Conflict, BadRequest, NotFound } from 'ts-httpexceptions';
 
-@Controller('/internal')
+/**
+ * Controller class for the `/internal/wishlist` endpoint.
+ * 
+ * @author Szalontai Jordán
+ */
+@Controller('/internal/wishlist')
 export class WishlistController {
 
     constructor(private wishlist: WishlistService) {
     }
 
-    @Get('/wishlist')
+    /**
+     * Returns a list of books from the internal wishlist of the user with the resolved Google User Id.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     */
+    @Get('/')
     @UseBefore(GoogleMiddleware)
     public async getBookItemsOnInternalWishlist(@Locals('userId') userId: string): Promise<CommonBookList> {
         const books = await this.wishlist.getBookItemsOnInternalWishlist(userId);
@@ -22,7 +32,15 @@ export class WishlistController {
         return { books };
     }
 
-    @Get('/wishlist/:ISBN')
+    /**
+     * Returns a single book from the internal wishlist of the user with the resolved Google User Id
+     * based on its ISBN number.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `NotFound` if the book is not there with the given ISBN number
+     */
+    @Get('/:ISBN')
     @UseBefore(GoogleMiddleware)
     public async getBookItemFromInternalWishlist(
         @Required() @PathParams('ISBN') ISBN: string,
@@ -34,7 +52,14 @@ export class WishlistController {
         }
     }
 
-    @Post('/wishlist')
+    /**
+     * Adds a single book to the internal wishlist of the user with the resolved Google User Id.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `Conflict` if the book is already there with the given ISBN number
+     */
+    @Post('/')
     @UseBefore(GoogleMiddleware)
     public async postBookItemToInternalWishlist(
         @Response() res: express.Response,
@@ -48,7 +73,15 @@ export class WishlistController {
         }
     }
 
-    @Delete('/wishlist/:ISBN')
+    /**
+     * Deletes a single book to the internal wishlist of the user with the resolved Google User Id
+     * based on its ISBN.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `BadRequest` if the book is not on the wishlist with the given ISBN number
+     */
+    @Delete('/:ISBN')
     @UseBefore(GoogleMiddleware)
     public async deleteBookItemFromInternalWishlist(
         @Response() res: express.Response,

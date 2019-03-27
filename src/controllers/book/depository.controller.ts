@@ -18,6 +18,11 @@ import { DepositoryMiddleware } from '../../middlewares/depository.middleware';
 import { CommonBookList, CommonBookItem, TrueMessage } from '../../types/book/all.type';
 import { INVALID_SEARCH_TERM_NO_NUMBER_MESSAGE } from '../../types/exceptions/exceptions';
 
+/**
+ * Controller class for the `/book/depository` endpoint.
+ * 
+ * @author Szalontai Jordán
+ */
 @Controller('/book/depository')
 export class DepositoryController {
 
@@ -27,6 +32,13 @@ export class DepositoryController {
                 private bookTransformer: BookTransformerService) {
     }
 
+    /**
+     * Returns a single book based on its ISBN number.
+     * 
+     * @param ISBN the ISBN number of a book, all possible ISBN values are accepted
+     * 
+     * @throws `BadRequest` if the ISBN param is not a valid ISBN number
+     */
     @Get('/item/:ISBN')
     public async getBookByISBN(@PathParams('ISBN') ISBN: string): Promise<CommonBookItem> {
         try {
@@ -37,6 +49,9 @@ export class DepositoryController {
         }
     }
 
+    /**
+     * Returns a list of all available section names from the Book Depository home page.
+     */
     @Get('/sections')
     public async getSections(): Promise<DepositorySectionList> {
         try {
@@ -47,6 +62,12 @@ export class DepositoryController {
         }
     }
 
+    /**
+     * 
+     * Returns a list of books under the given section from the Book Depository home page.
+     * 
+     * @param sectionName the name of a section at Book Depository home page.
+     */
     @Get('/section/:sectionName')
     public async getBookItemsOfSection(
         @PathParams('sectionName') sectionName: string): Promise<CommonBookList> {
@@ -58,6 +79,19 @@ export class DepositoryController {
         }
     }
 
+    /**
+     * Returns a list of books from Book Depository based on the `searchTerm`.
+     *
+     * Also sends the searched term for statistics.
+     * 
+     * @param searchTerm a string that will represent the search keyword
+     * @param page (optional) the page number of the results
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `BadRequest` if the searchTerm is a number, which would implicate an ISBN number
+     * @throws `NotFound` if the result list is empty
+     * @throws `InternalServerError` if there are some unknown problems (e.g. Book Depository DOM changed thus cannot be parsed)
+     */
     @Get('/search/:searchTerm')
     @Get('/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)
@@ -84,12 +118,27 @@ export class DepositoryController {
         }
     }
 
+    /**
+     * Returns a simple message if the Google User Id can be resolved and the user with
+     * the given Id is logged in to Book Depository through the application.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     */
     @Get('/auth')
     @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async getDepositoryAuth(@Locals('userId') userId: string): Promise<TrueMessage> {
         return { message: 'true' };
     }
 
+    /**
+     * Logs in to Book Depository with the given Google User Id if it can be resolved.
+     * 
+     * @param email email used for login at Book Depository
+     * @param password password used for login at Book Depository
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `Unauthorized` if the credentials are wrong
+     */
     @Post('/auth/login')
     @UseBefore(GoogleMiddleware)
     public async postLoginToDepository(
@@ -104,6 +153,13 @@ export class DepositoryController {
         }
     }
 
+    /**
+     * Logs out from Book Depository with the given Google User Id if it can be resolved.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `Unauthorized` if the user weren't logged in with the given Google User Id
+     */
     @Post('/auth/logout')
     @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async postLogoutFromDepository(@Locals('userId') userId: string): Promise<DepositoryAuthMessage> {
@@ -115,7 +171,14 @@ export class DepositoryController {
         }
     }
 
-
+    /**
+     * Returns a list of books from the user's Book Depository wishlist, if they are logged in.
+     * 
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `Unauthorized` if the user is not logged in
+     * @throws `InternalServerError` if there are some unknown problems (e.g. Book Depository DOM changed thus cannot be parsed)
+     */
     @Get('/wishlist')
     @UseBefore(GoogleMiddleware, DepositoryMiddleware)
     public async getDepositoryWishlist(@Locals('userId') userId: string): Promise<CommonBookList> {

@@ -1,6 +1,11 @@
 import { prop, Typegoose } from 'typegoose';
 import { SearchHistory } from '../types/book/all.type';
 
+/**
+ * Entity class for search history.
+ * 
+ * @author Szalontai Jordán
+ */
 export class SearchHistoryItem extends Typegoose {
 
     constructor() {
@@ -14,4 +19,9 @@ export class SearchHistoryItem extends Typegoose {
     searchHistory: SearchHistory;
 }
 
+/**
+ * Mongoose model for search history.
+ * 
+ * @see SearchHistoryItem
+ */
 export const SearchHistoryItemModel = new SearchHistoryItem().getModelForClass(SearchHistoryItem);

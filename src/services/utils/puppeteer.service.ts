@@ -1,6 +1,11 @@
 import * as puppeteer from 'puppeteer';
 import { Service, OnInit, OnDestroy } from '@tsed/common';
 
+/**
+ * Utility service class for using Headless Chrome via Puppeteer.
+ * 
+ * @author Szalontai Jordán
+ */
 @Service()
 export class PuppeteerService implements OnInit, OnDestroy {
     
@@ -27,10 +32,30 @@ export class PuppeteerService implements OnInit, OnDestroy {
         this.closeChrome();
     }
 
+    /**
+     * Returns a Headless Chrome page.
+     * 
+     * This page will have
+     * - JavaScript enabled
+     * - Logs by `console.log` sent to the server
+     * - the `navigator.webdriver` property removed
+     * - the `user-agent` header modified from `HeadlessChrome` to `Chrome` with every request
+     * - the `accept-languages` header will be set to the value `en-US,en;q=0.8` with every request
+     * 
+     * @param url the url of the page
+     * @param children (optional) routes of the url (e.g ['foo', 'bar', 'baz'])
+     */
     public async openPage(url: string, ...children: Array<string>): Promise<puppeteer.Page> {
         return this.createPage(this.browser, url + children.join('/'));
     }
 
+    /**
+     * Returns the return value of the `evaluateFn` param that was executed on the opened page.
+     * 
+     * @param url the url of the page
+     * @param evaluateFn the function that will run on the page
+     * @param children (optional) routes of the url (e.g ['foo', 'bar', 'baz'])
+     */
     public async getInformationFromPage(url: string, evaluateFn: puppeteer.EvaluateFn, ...children: Array<string>): Promise<any> {
         const page = await this.openPage(url, ...children);
         const result = await page.evaluate(evaluateFn);
@@ -40,6 +65,14 @@ export class PuppeteerService implements OnInit, OnDestroy {
         return result;
     }
 
+    /**
+     * Returns a page opened in an incognito window.
+     * 
+     * @param id an id that can be used to identify this incognito window
+     * @param url the url of the page in the incognito window
+     * 
+     * @see openPage
+     */
     public async createIncognitoWindow(id: string, url: string): Promise<{ id: string, page: puppeteer.Page }> {
         const context = await this.browser.createIncognitoBrowserContext();
         const page = await this.createPage(context, url);

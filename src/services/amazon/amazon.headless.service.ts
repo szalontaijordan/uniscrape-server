@@ -7,6 +7,11 @@ import { AmazonBookItem } from '../../types/book/amazon.type';
 
 import { AMAZON_EMPTY_RESULTS_MESSAGE, AMAZON_DOM_CHANGED_MESSAGE } from '../../types/exceptions/exceptions';
 
+/**
+ * Service class for fetching data from Amazon with Headless Chrome.
+ * 
+ * @author Szalontai Jordán
+ */
 @Service()
 export class AmazonHeadlessService implements OnInit {
 
@@ -18,6 +23,27 @@ export class AmazonHeadlessService implements OnInit {
     public $onInit(): void {
     }
 
+    /**
+     * Returns a list of Amazon books from Amazon.
+     * 
+     * This is based on the following DOM structure
+     * 
+     * ```
+     * .s-item-container
+     *   & > .a-col-right .a-spacing-none
+     * ```
+     * 
+     * The children includes the following fields in order:
+     * 
+     * ```
+     * title, url, category, price, image
+     * ```
+     * 
+     * @param keywords the keywords that you do the search on
+     * @param page (optional) the page of the results
+     * 
+     * @throws `AmazonEmptyResultsException` if the result lis is empty
+     */
     public async getAmazonSearch(keywords: string, page: number = 1): Promise<Array<AmazonBookItem>> {
         const URL = this.amazonSearchURL
             .replace('#KEYWORDS#', encodeURIComponent(keywords).replace('%20', '+'))

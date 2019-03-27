@@ -4,6 +4,11 @@ import { CommonBookItem } from '../../types/book/all.type';
 import { EbayKeywordsResult } from '../../types/book/ebay.type';
 import { AmazonBookItem } from '../../types/book/amazon.type';
 
+/**
+ * Utility service class for transforming between book items.
+ * 
+ * @author Szalontai Jordán
+ */
 @Service()
 export class BookTransformerService implements OnInit {
     
@@ -15,6 +20,11 @@ export class BookTransformerService implements OnInit {
     public $onInit(): void {
     }
 
+    /**
+     * Returns a book from the given Book Depository book.
+     * 
+     * @param book the Book Depository book
+     */
     public transformDepositoryToCommon(book: DepositoryBookItem): CommonBookItem {
         let { ISBN, title, author, image, currentPrice, published, linkToBook } = book;
 
@@ -47,6 +57,11 @@ export class BookTransformerService implements OnInit {
         };
     }
 
+    /**
+     * Returns a book from the given Ebay book.
+     * 
+     * @param book the Ebay book
+     */
     public transformEbayToCommon(book: EbayKeywordsResult): CommonBookItem {
         return {
             ISBN: 'EBAY-ITEM-ID' + book.itemId[0],
@@ -62,6 +77,11 @@ export class BookTransformerService implements OnInit {
         }
     }
 
+    /**
+     * Returns a book from the given Amazon book.
+     * 
+     * @param book the Amazon book
+     */
     public transformAmazonToCommon(book: AmazonBookItem): CommonBookItem {
         const { title, image, price, url } = book;
 
@@ -79,6 +99,11 @@ export class BookTransformerService implements OnInit {
         };
     }
 
+    /**
+     * Returns a book from the given Book Depository wishlist book.
+     * 
+     * @param book the Book Depository wishlist book
+     */
     public transformDepositoryWishlistToCommon(book: DepositoryWishlistItem): CommonBookItem {
         let { url, title, author, image, currentPrice } = book;
 

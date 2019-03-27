@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node app.js\"",
     "build": "npm run tsc",
+    "doc": "typedoc --out dist/docs ./src",
     "coverage": "npm run test-cov && npm run test-remap",
     "preinstall": "npm i -g reflect-metadata && npm install @types/node",
-    "postinstall": "npm run build",
+    "postinstall": "npm run build && npm run doc",
     "tslint": "tslint ./*.ts ./lib/*.ts",
     "test": "echo \"No tests!\" && exit 1",
     "tsc": "tsc --project tsconfig.json",
@@ -48,6 +49,7 @@
     "puppeteer": "^1.11.0",
     "ts-httpexceptions": "^3.1.1",
     "tsc-watch": "1.0.31",
+    "typedoc": "^0.14.2",
     "typegoose": "^5.5.0",
     "typescript": "3.2.2"
   }

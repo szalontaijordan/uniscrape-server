@@ -5,6 +5,11 @@ import { config } from '../../../config/vars';
 import { GoogleIdTokenInvalidException, GoogleIdTokenMissingException } from '../../types/exceptions/google.exceptions';
 import { GOOGLE_ID_TOKEN_MISSING_MESSAGE, GOOGLE_ID_TOKEN_INVALID_MESSAGE } from '../../types/exceptions/exceptions';
 
+/**
+ * Utility service class for validating Google User Id tokens.
+ * 
+ * @author Szalontai Jordán
+ */
 @Service()
 export class GoogleService implements OnInit {
     
@@ -14,6 +19,14 @@ export class GoogleService implements OnInit {
     public $onInit(): void {
     }
 
+    /**
+     * Returns the Google User Id from the token if it is in the header and it is valid.
+     * 
+     * @param authHeader the header containing the token
+     * 
+     * @throws `GoogleIdTokenMissingException` if the token is not in the given header
+     * @throws `GoogleIdTokenInvalidException` if the token is not valid (expired, mocked, etc.)
+     */
     public async validateGoogleIdToken(authHeader: string): Promise<string> {
         if (!authHeader || authHeader.indexOf('Bearer') !== 0) {
             throw new GoogleIdTokenMissingException(GOOGLE_ID_TOKEN_MISSING_MESSAGE);

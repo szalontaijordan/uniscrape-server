@@ -10,6 +10,11 @@ import { StatisticsService } from '../../services/utils/statistics.service';
 import { CommonBookList } from '../../types/book/all.type';
 import { BookTransformerService } from '../../services/utils/book-transformer.service';
 
+/**
+ * Controller class for the `/book/ebay` endpoint.
+ * 
+ * @author Szalontai Jordán
+ */
 @Controller('/book/ebay')
 export class EbayController {
 
@@ -18,6 +23,18 @@ export class EbayController {
                 private bookTransformer: BookTransformerService) {
     }
 
+    /**
+     * Returns a list of books from Ebay based on the `searchTerm`.
+     *
+     * Also sends the searched term for statistics.
+     *  
+     * @param searchTerm a string that will represent the search keyword
+     * @param page (optional) the page number of the results
+     * @param userId the id resolved by the `GoogleMiddleware`
+     * 
+     * @throws `NotFount` if the result list is empty
+     * @throws `InternalServerError` if there are some unknown problems with the Ebay API
+     */
     @Get('/search/:searchTerm')
     @Get('/search/:searchTerm/:page')
     @UseBefore(GoogleMiddleware)

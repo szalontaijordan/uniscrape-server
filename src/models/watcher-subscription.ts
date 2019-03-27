@@ -1,5 +1,11 @@
 import { prop, Typegoose } from 'typegoose';
 
+
+/**
+ * Entity class for subscriptions to the watcher.
+ * 
+ * @author Szalontai Jordán
+ */
 export class WatcherSubscription extends Typegoose {
 
     constructor() {
@@ -13,4 +19,9 @@ export class WatcherSubscription extends Typegoose {
     email: string;
 }
 
+/**
+ * Mongoose model for search history.
+ * 
+ * @see WatcherSubscription
+ */
 export const WatcherSubscriptionModel = new WatcherSubscription().getModelForClass(WatcherSubscription);

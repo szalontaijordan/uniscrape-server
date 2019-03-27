@@ -7,6 +7,11 @@ import { BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE, BOOK_ITEM_ALREADY_ON_WISHLIST_MES
 
 import { WishlistItemModel, WishlistItem } from '../../models/wishlist-item';
 
+/**
+ * Utility service class for managing the internal wishlist.
+ * 
+ * @author Szalontai Jordán
+ */
 @Service()
 export class WishlistService implements OnInit {
     
@@ -16,6 +21,11 @@ export class WishlistService implements OnInit {
     public $onInit(): void {
     }
 
+    /**
+     * Returns a list of books from the internal wishlist of the user.
+     * 
+     * @param userId the Google User Id of the user
+     */
     public async getBookItemsOnInternalWishlist(userId: string): Promise<Array<CommonBookItem>> {
         const internalWishlist = await this.getInternalWishlist(userId);
 
@@ -28,6 +38,13 @@ export class WishlistService implements OnInit {
         return internalWishlist.bookList.books;
     }
 
+    /**
+     * Adds a single book to the internal wishlist of the user.
+     * 
+     * @param userId the Google User Id of the user
+     * 
+     * @throws `BookItemAlreadyOnWishlistException` if the book is already on the wishlist
+     */
     public async addBookItemToInternalWishlist(bookItem: CommonBookItem, userId: string): Promise<CommonBookItem> {
         const wishlist = await this.getInternalWishlist(userId);
         const isBookAlreadyOnWishlist = wishlist.bookList.books.map(book => book.ISBN).indexOf(bookItem.ISBN) >= 0;
@@ -41,6 +58,13 @@ export class WishlistService implements OnInit {
         throw new BookItemAlreadyOnWishlistException(BOOK_ITEM_ALREADY_ON_WISHLIST_MESSAGE);
     }
 
+    /**
+     * Deletes a single book from the internal wishlist of the user.
+     * 
+     * @param userId the Google User Id of the user
+     * 
+     * @throws `BookItemIsNotOnWishlistException` if the book is not on the wishlist
+     */
     public async deleteBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<void> {
         const wishlist = await this.getInternalWishlist(userId);
         const isBookAlreadyOnWishlist = wishlist.bookList.books.map(book => book.ISBN).indexOf(ISBN) >= 0;
@@ -54,6 +78,13 @@ export class WishlistService implements OnInit {
         throw new BookItemIsNotOnWishlistException(BOOK_ITEM_IS_NOT_ON_WISHLIST_MESSAGE);
     }
 
+    /**
+     * Returns a single book from the internal wishlist of the user.
+     * 
+     * @param userId the Google User Id of the user
+     * 
+     * @throws `BookItemIsNotOnWishlistException` if the book is not on the wishlist
+     */
     public async getBookItemFromInternalWishlist(userId: string, ISBN: string): Promise<CommonBookItem> {
         const wishlist = await this.getInternalWishlist(userId);
         const isBookAlreadyOnWishlist = wishlist.bookList.books.map(book => book.ISBN).indexOf(ISBN) >= 0;

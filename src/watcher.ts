@@ -9,6 +9,11 @@ import { config } from '../config/vars';
 import { BookTransformerService } from './services/utils/book-transformer.service';
 import { createUpdateEmail } from './update-email';
 
+/**
+ * Class for watching books on every user's wishlist.
+ * 
+ * @author Szalontai Jordán
+ */
 export class Watcher {
 
     private job: CronJob;
@@ -17,6 +22,19 @@ export class Watcher {
 
     private transporter: any;
 
+    /**
+     * Creates a `Watcher` instance that will be able to compare live data of books
+     * with data on wishlists.
+     * 
+     * ##Example
+     * 
+     * ```javascript
+     * // watch every hour
+     * const watcher = new Watcher('0 * * * * *');
+     * ```
+     * 
+     * @param cronPattern a pattern like in the linux Cron job
+     */
     constructor(cronPattern: string = '0 */1 * * * *') {
         this.job = new CronJob(cronPattern, this.bookWatcherJob.bind(this));
         this.bookService = new DepositoryDOMService();
@@ -25,6 +43,21 @@ export class Watcher {
         this.transporter = nodemailer.createTransport(config.email.gmail);
     }
 
+    /**
+     * Starts the Cron job of this instance.
+     * 
+     * Based on the Cron job the following will happen:
+     * 
+     * - fetch all the available subscriptions
+     * - fetch all the available wishlist items
+     * - for each subscription match with the wishlist
+     *   - if there is a wishlist call a service that retrieves data based on ISBN of books
+     *     - match this live data with data on wishlist
+     *     - collect all books that have a lower price than on the wishlist
+     *     - if the collected list is not empty
+     *       - update the wishlist
+     *       - send an email based on the subscription
+     */
     public async watchBooks(): Promise<void> {
         return this.job.start();
     }

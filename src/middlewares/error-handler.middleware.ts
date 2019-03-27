@@ -3,9 +3,26 @@ import { IMiddlewareError, MiddlewareError, Request, Response, Next, Err } from 
 
 import { Exception as HttpException, InternalServerError } from 'ts-httpexceptions';
 
+/**
+ * Middleware class for handling errors thrown in the application.
+ * 
+ * Since all the errors that are thrown are either from a controller, middleware or
+ * the business logic, this middleware forwards the correct error responses to the client.
+ * 
+ * @author Szalontai Jordán
+ */
 @MiddlewareError()
 export class ErrorHandlerMiddleware implements IMiddlewareError {
 
+    /**
+     * Creates the error response that will be sent to the client, then
+     * sends it.
+     * 
+     * @param error (injected) the error that was thrown
+     * @param request (injected) the `express.Request` object
+     * @param response (injected) the `express.Response` object
+     * @param next (injected) the `express.NextFunction` object
+     */
     public use(@Err() error: HttpException | any,
         @Request() request: express.Request,
         @Response() response: express.Response,

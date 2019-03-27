@@ -1,6 +1,8 @@
 import { CommonBookItem } from "./types/book/all.type";
 
-
+/**
+ * Styles based on the UI part of the application.
+ */
 const styles = {
     bookItem: '' +
         'position: relative; font-weight: 300; border: 1px solid #4285f4; padding: 8px; font-size: 16px; max-width: 200px; height: 450px',
@@ -18,6 +20,11 @@ const styles = {
         'margin-top: 44px; margin-left: 114px; font-size: 12px; color: #555;'
 }
 
+/**
+ * Returns a template string of an email about book updates based on the given array.
+ * 
+ * @param books the array of books that should be in the update email
+ */
 export const createUpdateEmail = (books: Array<CommonBookItem>): string => {
     return `
         <h1>Árcsökkenés!</h1>

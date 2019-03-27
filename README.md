@@ -26,7 +26,18 @@ Example call:
 $ curl "http://localhost:8080/api/book/depository/sections"
 ```
 
-## Book API in UniScrape: `/api`
+## Documentation:
+
+Please find the documentation at
+```
+http://localhost:8080/doc
+```
+or
+```
+https://www.uniscrape.herokuapp.com/doc
+```
+
+### REST endpoints
 
 | Method           | Endpoint                                      | Class method                                            |
 |------------------|-----------------------------------------------|---------------------------------------------------------|
@@ -34,15 +45,20 @@ $ curl "http://localhost:8080/api/book/depository/sections"
 | GET              | /api/book/all/auth                            | AllController.getAuth()                                 |
 | GET              | /api/book/amazon/search/:searchTerm/:page     | AmazonController.getAmazonSearchResults()               |
 | GET              | /api/book/amazon/search/:searchTerm           | AmazonController.getAmazonSearchResults()               |
+| GET              | /api/book/depository/item/:ISBN               | DepositoryController.getBookByISBN()                    |
 | GET              | /api/book/depository/sections                 | DepositoryController.getSections()                      |
 | GET              | /api/book/depository/section/:sectionName     | DepositoryController.getBookItemsOfSection()            |
 | GET              | /api/book/depository/search/:searchTerm/:page | DepositoryController.getDepositorySearchResults()       |
 | GET              | /api/book/depository/search/:searchTerm       | DepositoryController.getDepositorySearchResults()       |
+| GET              | /api/book/depository/auth                     | DepositoryController.getDepositoryAuth()                |
 | POST             | /api/book/depository/auth/login               | DepositoryController.postLoginToDepository()            |
 | POST             | /api/book/depository/auth/logout              | DepositoryController.postLogoutFromDepository()         |
 | GET              | /api/book/depository/wishlist                 | DepositoryController.getDepositoryWishlist()            |
 | GET              | /api/book/ebay/search/:searchTerm/:page       | EbayController.getEbaySearchResults()                   |
 | GET              | /api/book/ebay/search/:searchTerm             | EbayController.getEbaySearchResults()                   |
+| GET              | /api/internal/watcher/subscription            | WatcherController.getWatcherSubscription()              |
+| POST             | /api/internal/watcher/subscription            | WatcherController.postWatcherSubscription()             |
+| DELETE           | /api/internal/watcher/subscription/:email     | WatcherController.deleteWatcherSubscription()           |
 | GET              | /api/internal/wishlist                        | WishlistController.getBookItemsOnInternalWishlist()     |
 | GET              | /api/internal/wishlist/:ISBN                  | WishlistController.getBookItemFromInternalWishlist()    |
 | POST             | /api/internal/wishlist                        | WishlistController.postBookItemToInternalWishlist()     |
