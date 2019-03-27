@@ -10,6 +10,7 @@ export class PuppeteerService implements OnInit, OnDestroy {
         defaultViewport: null,
         slowMo: 10,
         args: [
+            '--no-sandbox',
             '--blink-settings=imagesEnabled=true'
         ]
     };
