@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import { Controller, Locals, Post, UseBefore, Delete, BodyParams, Response, Required, Get, } from '@tsed/common';
+import { Controller, Locals, Post, UseBefore, Delete, BodyParams, Response, Required, Get, PathParams, } from '@tsed/common';
 import { GoogleMiddleware } from '../../middlewares/google.middleware';
 import { WatcherService } from '../../services/utils/watcher.service';
 import { TrueMessage } from '../../types/book/all.type';
@@ -36,11 +36,11 @@ export class WatcherController {
         return { message: 'true' };
     }
 
-    @Delete('/watcher/subscription')
+    @Delete('/watcher/subscription/:email')
     @UseBefore(GoogleMiddleware)
     public async deleteWatcherSubscription(
         @Locals('userId') userId: string,
-        @Required() @BodyParams('email') email: string,
+        @Required() @PathParams('email') email: string,
         @Response() res: express.Response): Promise<TrueMessage> {
         await this.watcherService.unsubscribeFromWatcher(userId, email);
         res.status(204);
