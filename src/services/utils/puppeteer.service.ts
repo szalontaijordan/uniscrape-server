@@ -5,33 +5,28 @@ import { Service, OnInit, OnDestroy } from '@tsed/common';
 export class PuppeteerService implements OnInit, OnDestroy {
     
     private browser: puppeteer.Browser;
-    
+    private chromeConfig: puppeteer.LaunchOptions = {
+        headless: true,
+        defaultViewport: null,
+        slowMo: 10,
+        args: [
+            '--blink-settings=imagesEnabled=true'
+        ]
+    };
+
     constructor() {
     }
     
     public $onInit(): void {
-        puppeteer.launch({ headless: false })
-            .then(browser => {
-                this.browser = browser;
-                console.log('Headless browser started ...');
-            })
-            .catch(err => console.log(err.message));
+        this.launchChrome();
     }
 
     public $onDestroy(): void {
-        this.browser.close()
-            .then(() => console.log('Headless browser closed ...'));
+        this.closeChrome();
     }
 
     public async openPage(url: string, ...children: Array<string>): Promise<puppeteer.Page> {
-        const page = await this.browser.newPage();
-
-        page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-        page.setJavaScriptEnabled(true);
-
-        await page.goto(url + children.join('/'));
-
-        return page;
+        return this.createPage(this.browser, url + children.join('/'));
     }
 
     public async getInformationFromPage(url: string, evaluateFn: puppeteer.EvaluateFn, ...children: Array<string>): Promise<any> {
@@ -45,14 +40,49 @@ export class PuppeteerService implements OnInit, OnDestroy {
 
     public async createIncognitoWindow(id: string, url: string): Promise<{ id: string, page: puppeteer.Page }> {
         const context = await this.browser.createIncognitoBrowserContext();
+        const page = await this.createPage(context, url);
+
         console.log('Created Incognito window with id ', id, '...');
+        return { id, page };
+    }
+
+    private async launchChrome(): Promise<void> {
+        try {
+            const browser =  await puppeteer.launch(this.chromeConfig);
+                
+            this.browser = browser;
+            console.log('Headless browser started ...');
+        } catch (err) {
+            console.log(err.message)
+        }
+    }
+
+    private async closeChrome(): Promise<void> {
+        await this.browser.close()
+        console.log('Headless browser closed ...');
+    }
+
+    private async createPage(context: any & { newPage: () => Promise<puppeteer.Page> }, url: string): Promise<puppeteer.Page> {
         const page = await context.newPage();
 
         page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-        page.setJavaScriptEnabled(true);
+        await page.setJavaScriptEnabled(true);
+
+        const headlessUserAgent = await page.evaluate(() => navigator.userAgent);
+        const chromeUserAgent = headlessUserAgent.replace('HeadlessChrome', 'Chrome');
+        await page.setUserAgent(chromeUserAgent);
+        await page.setExtraHTTPHeaders({
+            'accept-language': 'en-US,en;q=0.8'
+        });
 
         await page.goto(url);
+        await page.evaluate(() => {
+            const n = window.navigator['__proto__'];
+            delete n.webdriver;
+            window.navigator['__proto__'] = n;
+            console.log('hacking')
+        });
 
-        return { id, page };
+        return page;
     }
 }

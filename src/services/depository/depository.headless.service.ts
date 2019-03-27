@@ -22,7 +22,7 @@ import {
 export class DepositoryHeadlessService implements OnInit {
 
     private depoLoginURL = 'https://www.bookdepository.com/account/login/to/account';
-    private depoWishlistURL = 'https://www.bookdepository.com/account/wishlist';
+    private depoWishlistURL = 'https://www.bookdepository.com/account/wishlist?selectCurrency=HUF';
 
     private browserContextPages: Array<{ id: string, page: puppeteer.Page }>;
 
@@ -64,10 +64,14 @@ export class DepositoryHeadlessService implements OnInit {
         await loginPage.waitForNavigation();
 
         if (loginPage.url().indexOf('ap') !== -1) {
+            await loginPage.screenshot({ path: './depo.png' });
             this.closeCurrentLoginPage(userId);
             throw new DepositoryDOMChangedException(DEPOSITORY_DOM_CHANGED_AUTO_LOGIN_FAIL_MESSAGE);
         }
 
+        await loginPage.evaluate(() => {
+
+        });
         await loginPage.goto(this.depoWishlistURL);
 
         if (loginPage.url().indexOf('wishlist') === -1) {

@@ -18,8 +18,8 @@ import { config } from '../../../config/vars';
 @Service()
 export class DepositoryDOMService implements OnInit {
     
-    private depoHomeURL = 'https://www.bookdepository.com/';
-    private depoSearchURL = 'https://www.bookdepository.com/search?searchTerm=#SEARCHTERM#&page=#PAGE#';
+    private depoHomeURL = 'https://www.bookdepository.com?selectCurrency=HUF';
+    private depoSearchURL = 'https://www.bookdepository.com/search?searchTerm=#SEARCHTERM#&page=#PAGE#&selectCurrency=HUF';
 
     constructor() {
     }

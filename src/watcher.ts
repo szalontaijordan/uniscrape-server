@@ -84,9 +84,11 @@ export class Watcher {
             subject: '[uniscrape] - Könyvek frissültek ' + new Date().toLocaleString('hu-hu'),
             html: createUpdateEmail(books)
         }
-        this.transporter.sendMail(mailOptions, (err, info) => {
+        this.transporter.sendMail(mailOptions, (err: any, info: any) => {
             if (!err) {
-                console.log(info)
+                console.log(info);
+            } else {
+                console.log(err);
             }
         });
     }

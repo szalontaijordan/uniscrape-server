@@ -33,8 +33,7 @@
   "dependencies": {
     "@tsed/common": "^4.32.2",
     "@tsed/core": "^4.32.2",
-    "tsc-watch": "1.0.31",
-    "typescript": "3.2.2",
+    "@types/node": "^11.12.0",
     "cron": "^1.6.0",
     "express": "^4.16.4",
     "google-auth-library": "^2.0.1",
@@ -48,6 +47,8 @@
     "nodemailer": "^5.1.1",
     "puppeteer": "^1.11.0",
     "ts-httpexceptions": "^3.1.1",
-    "typegoose": "^5.5.0"
+    "tsc-watch": "1.0.31",
+    "typegoose": "^5.5.0",
+    "typescript": "3.2.2"
   }
 }
