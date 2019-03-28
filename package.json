@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node app.js\"",
     "build": "npm run tsc",
-    "doc": "typedoc --out dist/docs ./src",
+    "doc": "typedoc --mode file --exclude ./config/vars.ts --out dist/docs ./src",
     "coverage": "npm run test-cov && npm run test-remap",
     "preinstall": "npm i -g reflect-metadata && npm install @types/node",
     "postinstall": "npm run build && npm run doc",
@@ -15,6 +15,10 @@
     "tsc": "tsc --project tsconfig.json",
     "tsc:w": "tsc -w",
     "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/szalontaijordan/uniscrape-server"
   },
   "keywords": [],
   "author": "Szalontai Jordán",
